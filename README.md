@@ -89,3 +89,4 @@
 
 ## Пример экранной формы
 
+![Learnng mode UI](docs/ui-design/Learning-mode-UI.png)
