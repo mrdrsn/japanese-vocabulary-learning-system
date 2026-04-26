@@ -59,9 +59,8 @@
 - C4 Context diagram
 - C4 Container diagram
 - C4 Component diagram
-- ER-диаграмма
-- схема графовой базы знаний
-- Use Case diagram
+- ER-диаграмма реляционной базы данных (логический уровень)
+- ER-схема графовой базы знаний
 
 Диаграммы находятся в папке [docs/diagrams](docs/diagrams).
 
