@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JapaneseVocabularyLearningSystem">
         <activity
+            android:name=".TrainingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LexicalViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ModeChooseActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

@@ -5,8 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/scenario_background"
-    tools:context=".MainActivity">
+    android:background="@drawable/mode_background"
+    tools:context=".ModeChooseActivity">
 
     <TextView
         android:id="@+id/tvPreparation"
@@ -15,7 +15,7 @@
         android:layout_marginTop="-8dp"
         android:fontFamily="@font/sfprodisplay_regular"
         android:includeFontPadding="false"
-        android:text="подготовки"
+        android:text="изучения"
         android:textColor="@color/black_text"
         android:textSize="53dp"
         app:layout_constraintStart_toStartOf="@id/tvChoose"
@@ -28,8 +28,8 @@
         android:layout_marginTop="-8dp"
         android:fontFamily="@font/sfprodisplay_regular"
         android:includeFontPadding="false"
-        android:text="сценарий"
-        android:textColor="@color/scenario_blue"
+        android:text="режим"
+        android:textColor="@color/black_text"
         android:textSize="53dp"
         app:layout_constraintStart_toStartOf="@id/tvChoose"
         app:layout_constraintTop_toBottomOf="@id/tvChoose" />
@@ -49,13 +49,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/btnFoodScenario"
+        android:id="@+id/btnMemorizationMode"
         android:layout_width="1000px"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:contentDescription="Сценарий общественного питания"
+        android:contentDescription="Режим запоминания лексики"
         android:scaleType="fitCenter"
-        android:src="@drawable/scenario_food"
+        android:src="@drawable/mode_memorization"
         app:layout_constraintDimensionRatio="10:3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.466"
@@ -63,18 +63,30 @@
         app:layout_constraintTop_toBottomOf="@id/tvPreparation" />
 
     <ImageView
-        android:id="@+id/btnStoreScenario"
+        android:id="@+id/btnTrainingMode"
         android:layout_width="1000px"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="Сценарий convenience store"
+        android:contentDescription="Режим тренировочных упражнений"
         android:scaleType="fitXY"
-        android:src="@drawable/scenario_store"
+        android:src="@drawable/mode_training"
         app:layout_constraintDimensionRatio="10:3"
-        app:layout_constraintEnd_toEndOf="@id/btnFoodScenario"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@id/btnFoodScenario"
-        app:layout_constraintTop_toBottomOf="@id/btnFoodScenario" />
+        app:layout_constraintEnd_toEndOf="@id/btnMemorizationMode"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@id/btnMemorizationMode"
+        app:layout_constraintTop_toBottomOf="@id/btnMemorizationMode" />
 
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="110dp"
+        android:layout_height="0dp"
+        android:contentDescription="Вернуться на предыдущий экран"
+        android:scaleType="fitXY"
+        android:src="@drawable/back_button"
+        app:layout_constraintDimensionRatio="120:55"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="39dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

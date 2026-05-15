@@ -10,33 +10,25 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class TrainingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_training);
+        ImageView btnBack = findViewById(R.id.btnBack);
 
-        ImageView btnFoodScenario = findViewById(R.id.btnFoodScenario);
-        ImageView btnStoreScenario = findViewById(R.id.btnStoreScenario);
-
-        btnFoodScenario.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ModeChooseActivity.class);
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(TrainingActivity.this, ModeChooseActivity.class);
             startActivity(intent);
             finish();
         });
 
-        btnStoreScenario.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ModeChooseActivity.class);
-            startActivity(intent);
-            finish();
-        });
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
     }
-
 }
