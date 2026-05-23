@@ -8,6 +8,30 @@
     android:background="@drawable/lexical_view_background"
     tools:context=".LexicalViewActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUtterances"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:paddingTop="106dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/lexicalTopRectangle"
+        android:layout_width="0dp"
+        android:layout_height="110dp"
+        android:contentDescription="Вернуться на предыдущий экран"
+        android:scaleType="fitXY"
+        android:src="@drawable/lexical_view_top"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
     <ImageView
         android:id="@+id/btnBack"
         android:layout_width="110dp"
@@ -19,7 +43,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="39dp" />
+        android:layout_marginTop="45dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
