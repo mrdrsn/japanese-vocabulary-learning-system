@@ -16,7 +16,7 @@ import java.util.List;
 
 public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.UtteranceViewHolder> {
 
-    private final List<Utterance> utteranceList;
+    private List<Utterance> utteranceList;
 
     public UtteranceAdapter(List<Utterance> utteranceList) {
         this.utteranceList = utteranceList;
@@ -28,6 +28,11 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_utterance, parent, false);
         return new UtteranceViewHolder(view);
+    }
+    public void updateData(List<Utterance> newList) {
+        utteranceList.clear();
+        utteranceList.addAll(newList);
+        notifyDataSetChanged();
     }
 
     @Override

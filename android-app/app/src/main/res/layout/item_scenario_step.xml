@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <!-- Левая часть: квадрат-чекбокс -->
+    <FrameLayout
+        android:id="@+id/checkboxContainer"
+        android:layout_width="39dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_checkbox_square">
+
+        <!-- Невыбранное состояние: контур круга -->
+        <View
+            android:id="@+id/circleUnchecked"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_outline"/>
+
+        <!-- Выбранное состояние: залитый круг с галочкой -->
+        <FrameLayout
+            android:id="@+id/circleChecked"
+            android:layout_width="27dp"
+            android:layout_height="27dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_filled"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_check_white"
+                android:contentDescription="Выбрано"/>
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- Правая часть: название шага -->
+    <TextView
+        android:id="@+id/tvStepName"
+        android:layout_width="314dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_step_label"
+        android:paddingStart="12dp"
+        android:paddingEnd="8dp"
+        android:gravity="center_vertical"
+        android:fontFamily="@font/sfprodisplay_regular"
+        android:textSize="14sp"
+        android:textColor="#5D5D5D"/>
+
+</LinearLayout>

@@ -4,11 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,35 +12,68 @@ import com.example.japanesevocabularylearningsystem.adapter.UtteranceAdapter;
 import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LexicalViewActivity extends AppCompatActivity {
+
+    private UtteranceAdapter adapter;
+    private List<Utterance> allUtterances;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_lexical_view);
 
         ImageView btnBack = findViewById(R.id.btnBack);
+        ImageView btnSettings = findViewById(R.id.btnSettings);
         RecyclerView rvUtterances = findViewById(R.id.rvUtterances);
 
-        List<Utterance> utterances = MockDataProvider.getConvenienceStoreUtterances();
+        allUtterances = MockDataProvider.getConvenienceStoreUtterances();
 
-        UtteranceAdapter adapter = new UtteranceAdapter(utterances);
+        adapter = new UtteranceAdapter(new ArrayList<>(allUtterances));
         rvUtterances.setLayoutManager(new LinearLayoutManager(this));
         rvUtterances.setAdapter(adapter);
 
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(LexicalViewActivity.this, ModeChooseActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(this, ModeChooseActivity.class));
             finish();
         });
 
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//            return insets;
-//        });
+        btnSettings.setOnClickListener(v -> {
+            ScenarioStepsBottomSheet sheet =
+                    ScenarioStepsBottomSheet.newInstance("Convenience Store");
+
+            sheet.setOnStepsAppliedListener(selectedStepIds -> {
+                // Фильтруем utterances по выбранным шагам
+                List<Utterance> filtered = filterBySteps(selectedStepIds);
+                adapter.updateData(filtered);
+            });
+
+            sheet.show(getSupportFragmentManager(), "steps_sheet");
+        });
+    }
+
+    private List<Utterance> filterBySteps(List<String> selectedStepIds) {
+        Map<String, List<String>> stepMap = MockDataProvider.getConvenienceStoreStepMap();
+
+        // Собираем все utterance ID для выбранных шагов
+        List<String> allowedIds = new ArrayList<>();
+        for (String stepId : selectedStepIds) {
+            List<String> ids = stepMap.get(stepId);
+            if (ids != null) allowedIds.addAll(ids);
+        }
+
+        // Оставляем только те utterances, чьи ID в списке
+        List<Utterance> result = new ArrayList<>();
+        for (Utterance u : allUtterances) {
+            if (allowedIds.contains(u.getId())) {
+                result.add(u);
+            }
+        }
+
+        // Если ничего не нашлось — показываем всё (защита)
+        return result.isEmpty() ? new ArrayList<>(allUtterances) : result;
     }
 }

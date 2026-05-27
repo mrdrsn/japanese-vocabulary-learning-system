@@ -47,13 +47,25 @@
 
     <ImageView
         android:id="@+id/btnSettings"
-        android:layout_width="210dp"
+        android:layout_width="230dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="836dp"
         android:contentDescription="Вернуться на предыдущий экран"
         android:scaleType="fitXY"
         android:src="@drawable/scenario_step_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/btnCardStart"
+        android:layout_width="220dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="172dp"
+        android:layout_marginTop="44dp"
+        android:contentDescription="Вернуться на предыдущий экран"
+        android:scaleType="fitXY"
+        android:src="@drawable/card_start_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

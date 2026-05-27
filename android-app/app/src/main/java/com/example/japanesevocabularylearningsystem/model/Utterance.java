@@ -2,7 +2,6 @@ package com.example.japanesevocabularylearningsystem.model;
 
 
 public class Utterance {
-
     private String id;
     private String surfaceRomaji;
     private String translation;

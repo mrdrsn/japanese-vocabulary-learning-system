@@ -3,12 +3,15 @@ package com.example.japanesevocabularylearningsystem.data;
 import com.example.japanesevocabularylearningsystem.model.AnswerOption;
 import com.example.japanesevocabularylearningsystem.model.Exercise;
 import com.example.japanesevocabularylearningsystem.model.Scenario;
+import com.example.japanesevocabularylearningsystem.model.ScenarioStep;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MockDataProvider {
 
@@ -87,5 +90,30 @@ public class MockDataProvider {
         ));
 
         return list;
+    }
+    // Шаги сценария "Convenience Store"
+    public static List<ScenarioStep> getConvenienceStoreSteps() {
+        List<ScenarioStep> steps = new ArrayList<>();
+        steps.add(new ScenarioStep("S1", "Приветствие", true));
+        steps.add(new ScenarioStep("S2", "Разогрев еды", true));
+        steps.add(new ScenarioStep("S3", "Дополнительные приборы", true));
+        steps.add(new ScenarioStep("S4", "Вопрос о пакете на кассе", true));
+        steps.add(new ScenarioStep("S5", "Вопрос о бонусной карте", true));
+        steps.add(new ScenarioStep("S6", "Оплата", true));
+        steps.add(new ScenarioStep("S7", "Уход гостя", true));
+        return steps;
+    }
+
+    // Какие utterance ID относятся к каждому шагу (временная заглушка — до подключения БД)
+    public static Map<String, List<String>> getConvenienceStoreStepMap() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("S1", Arrays.asList("U9"));
+        map.put("S2", Arrays.asList("U6", "U7", "U8"));
+        map.put("S3", Arrays.asList("U3", "U5"));
+        map.put("S4", Arrays.asList("U1", "U2", "U4"));
+        map.put("S5", Arrays.asList());
+        map.put("S6", Arrays.asList());
+        map.put("S7", Arrays.asList("U9"));
+        return map;
     }
 }
