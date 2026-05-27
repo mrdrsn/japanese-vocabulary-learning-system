@@ -45,5 +45,17 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="45dp" />
 
+    <ImageView
+        android:id="@+id/btnSettings"
+        android:layout_width="210dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="836dp"
+        android:contentDescription="Вернуться на предыдущий экран"
+        android:scaleType="fitXY"
+        android:src="@drawable/scenario_step_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Карточка-фон упражнения -->
+    <ImageView
+        android:id="@+id/ivExerciseCard"
+        android:layout_width="412dp"
+        android:layout_height="474dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:contentDescription="Карточка упражнения"
+        android:scaleType="fitXY"
+        android:src="@drawable/exercise_card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="435:510"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Шапка карточки: счётчик "1/2" + индикаторы прогресса -->
+    <LinearLayout
+        android:id="@+id/headerRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/ivExerciseCard"
+        app:layout_constraintStart_toStartOf="@id/ivExerciseCard"
+        app:layout_constraintTop_toTopOf="@id/ivExerciseCard">
+
+        <TextView
+            android:id="@+id/tvExerciseCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:fontFamily="@font/sfprodisplay_regular"
+            android:textColor="#4E4E4E"
+            android:textSize="16sp"
+            tools:text="1/2" />
+
+        <LinearLayout
+            android:id="@+id/indicatorContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" />
+    </LinearLayout>
+
+    <!-- Инструкция -->
+    <TextView
+        android:id="@+id/tvInstruction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="48dp"
+        android:fontFamily="@font/sfprodisplay_regular"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@id/ivExerciseCard"
+        app:layout_constraintStart_toStartOf="@id/ivExerciseCard"
+        app:layout_constraintTop_toBottomOf="@id/headerRow"
+        tools:text="Закончите фразу продавца..." />
+
+    <!-- Перевод фразы -->
+    <TextView
+        android:id="@+id/tvTranslation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:fontFamily="@font/sfprodisplay_medium"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="@id/tvInstruction"
+        app:layout_constraintStart_toStartOf="@id/tvInstruction"
+        app:layout_constraintTop_toBottomOf="@id/tvInstruction"
+        tools:text="Вам разогреть это?" />
+
+    <!-- Ромадзи с пропуском -->
+    <TextView
+        android:id="@+id/tvRomajiGap"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/sfprodisplay_medium"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="@id/tvTranslation"
+        app:layout_constraintStart_toStartOf="@id/tvTranslation"
+        app:layout_constraintTop_toBottomOf="@id/tvTranslation"
+        tools:text="Kochira ni ________masuka?" />
+
+    <!-- Сетка 2x2 вариантов ответа -->
+    <GridLayout
+        android:id="@+id/optionsGrid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:columnCount="2"
+        android:rowCount="2"
+        app:layout_constraintEnd_toEndOf="@id/ivExerciseCard"
+        app:layout_constraintStart_toStartOf="@id/ivExerciseCard"
+        app:layout_constraintTop_toBottomOf="@id/tvRomajiGap">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOption1"
+            style="@style/ExerciseOptionButton"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_margin="6dp"
+            tools:text="goiriyō" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOption2"
+            style="@style/ExerciseOptionButton"
+            android:layout_row="0"
+            android:layout_column="1"
+            android:layout_margin="6dp"
+            tools:text="atatame" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOption3"
+            style="@style/ExerciseOptionButton"
+            android:layout_row="1"
+            android:layout_column="0"
+            android:layout_margin="6dp"
+            tools:text="okute" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOption4"
+            style="@style/ExerciseOptionButton"
+            android:layout_row="1"
+            android:layout_column="1"
+            android:layout_margin="6dp"
+            tools:text="ijō" />
+    </GridLayout>
+
+    <!-- Кнопка "Ответить" появляется после выбора варианта -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSubmitAnswer"
+        style="@style/SubmitButton"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="4dp"
+        android:text="Ответить"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/optionsGrid"
+        app:layout_constraintTop_toBottomOf="@id/optionsGrid"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

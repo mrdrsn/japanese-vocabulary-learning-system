@@ -4,6 +4,7 @@ import com.example.japanesevocabularylearningsystem.model.AnswerOption;
 import com.example.japanesevocabularylearningsystem.model.Exercise;
 import com.example.japanesevocabularylearningsystem.model.Scenario;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,5 +68,24 @@ public class MockDataProvider {
         ));
 
         return exercises;
+    }
+    public static List<ExerciseTypeA> getTypeAExercises() {
+        List<ExerciseTypeA> list = new ArrayList<>();
+
+        list.add(new ExerciseTypeA(
+                "Закончите фразу продавца...",
+                "Вам разогреть это?",
+                "Kochira ni ________masuka?",
+                Arrays.asList("goiriyō", "atatame", "okute", "ijō")
+        ));
+
+        list.add(new ExerciseTypeA(
+                "Закончите фразу продавца...",
+                "Вам нужен пакет?",
+                "Rejibukuro wa ________ desu ka?",
+                Arrays.asList("goiriyō", "atatame", "okute", "masuka")
+        ));
+
+        return list;
     }
 }
