@@ -21,7 +21,7 @@
         android:paddingEnd="18dp"
         android:paddingBottom="16dp">
 
-        <!-- маленький серый прямоугольник -->
+        <!-- тег типа: Выражение / Шаблон -->
         <TextView
             android:id="@+id/tvUtteranceType"
             android:layout_width="81dp"
@@ -33,14 +33,29 @@
             android:text="Выражение"
             android:textColor="#4A4A4A"
             android:textSize="12sp"
-            android:textStyle="normal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- тег шага (фиолетовый) -->
+        <TextView
+            android:id="@+id/tvStepTag"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:background="@drawable/bg_step_tag_purple"
+            android:fontFamily="@font/sfprodisplay_regular"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="Шаг"
+            android:textColor="#4A4A4A"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/tvUtteranceType"
+            app:layout_constraintTop_toTopOf="@id/tvUtteranceType"
+            app:layout_constraintBottom_toBottomOf="@id/tvUtteranceType"
+            android:layout_marginStart="7dp" />
+
         <!-- кнопка раскрытия -->
-
-        <!-- кнопка аудио -->
-
         <ImageButton
             android:id="@+id/btnExpandUtterance"
             android:layout_width="35dp"
@@ -55,6 +70,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@null" />
 
+        <!-- кнопка аудио -->
         <ImageButton
             android:id="@+id/btnPlayAudio"
             android:layout_width="35dp"

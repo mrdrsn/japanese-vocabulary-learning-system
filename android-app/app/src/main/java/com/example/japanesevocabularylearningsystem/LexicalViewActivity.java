@@ -20,6 +20,7 @@ public class LexicalViewActivity extends AppCompatActivity {
 
     private UtteranceAdapter adapter;
     private List<Utterance> allUtterances;
+    private List<String> currentSelectedStepIds = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,7 @@ public class LexicalViewActivity extends AppCompatActivity {
 
         allUtterances = MockDataProvider.getConvenienceStoreUtterances();
 
-        adapter = new UtteranceAdapter(new ArrayList<>(allUtterances));
+        adapter = new UtteranceAdapter(allUtterances, getSupportFragmentManager());
         rvUtterances.setLayoutManager(new LinearLayoutManager(this));
         rvUtterances.setAdapter(adapter);
 
@@ -43,12 +44,11 @@ public class LexicalViewActivity extends AppCompatActivity {
 
         btnSettings.setOnClickListener(v -> {
             ScenarioStepsBottomSheet sheet =
-                    ScenarioStepsBottomSheet.newInstance("Convenience Store");
+                    ScenarioStepsBottomSheet.newInstance("Convenience Store", currentSelectedStepIds);
 
             sheet.setOnStepsAppliedListener(selectedStepIds -> {
-                // Фильтруем utterances по выбранным шагам
-                List<Utterance> filtered = filterBySteps(selectedStepIds);
-                adapter.updateData(filtered);
+                currentSelectedStepIds = new ArrayList<>(selectedStepIds);
+                adapter.updateData(filterBySteps(selectedStepIds));
             });
 
             sheet.show(getSupportFragmentManager(), "steps_sheet");

@@ -6,6 +6,9 @@ public class Utterance {
     private String surfaceRomaji;
     private String translation;
     private boolean isFixedExpression;
+    private String roleId;
+    private String communicativeIntentId;
+    private String stepName;
 
     public Utterance() {
     }
@@ -16,6 +19,19 @@ public class Utterance {
         this.translation = translation;
         this.isFixedExpression = isFixedExpression;
     }
+
+    public Utterance(String id, String surfaceRomaji, String translation,
+                     boolean isFixedExpression,
+                     String roleId, String communicativeIntentId, String stepName) {
+        this.id = id;
+        this.surfaceRomaji = surfaceRomaji;
+        this.translation = translation;
+        this.isFixedExpression = isFixedExpression;
+        this.roleId = roleId;
+        this.communicativeIntentId = communicativeIntentId;
+        this.stepName = stepName;
+    }
+
 
     public String getId() {
         return id;
@@ -41,6 +57,13 @@ public class Utterance {
         this.translation = translation;
     }
 
+    public String getRoleId() { return roleId; }
+    public void setRoleId(String roleId) { this.roleId = roleId; }
+
+    public String getCommunicativeIntentId() { return communicativeIntentId; }
+    public void setCommunicativeIntentId(String communicativeIntentId) {
+        this.communicativeIntentId = communicativeIntentId;
+    }
     public boolean isFixedExpression() {
         return isFixedExpression;
     }
@@ -57,5 +80,13 @@ public class Utterance {
                 ", translation='" + translation + '\'' +
                 ", isFixedExpression=" + isFixedExpression +
                 '}';
+    }
+
+    public String getStepName() {
+        return stepName;
+    }
+
+    public void setStepName(String stepName) {
+        this.stepName = stepName;
     }
 }

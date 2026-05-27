@@ -3,10 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="660dp"
+    android:layout_height="750dp"
     android:background="@drawable/bg_bottom_sheet">
 
-    <!-- Название сценария -->
     <TextView
         android:id="@+id/tvScenarioName"
         android:layout_width="0dp"
@@ -20,7 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Подзаголовок -->
     <TextView
         android:id="@+id/tvStepsLabel"
         android:layout_width="wrap_content"
@@ -34,7 +32,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvScenarioName"/>
 
-    <!-- Кнопка закрыть -->
     <ImageView
         android:id="@+id/btnCloseSteps"
         android:layout_width="29dp"
@@ -46,7 +43,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Линия-разделитель на 107dp от верха -->
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
@@ -57,25 +53,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Список шагов -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSteps"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="525dp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintBottom_toTopOf="@id/btnApply"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Кнопка "Применить" -->
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnApply"
         android:layout_width="350dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/bg_apply_button"
         android:backgroundTint="@null"
         android:stateListAnimator="@null"

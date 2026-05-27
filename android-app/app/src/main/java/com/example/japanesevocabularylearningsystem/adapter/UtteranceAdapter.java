@@ -7,8 +7,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.japanesevocabularylearningsystem.ExpandedUtteranceBottomSheet;
 import com.example.japanesevocabularylearningsystem.R;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 
@@ -17,10 +19,14 @@ import java.util.List;
 public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.UtteranceViewHolder> {
 
     private List<Utterance> utteranceList;
+    private final FragmentManager fragmentManager;
 
-    public UtteranceAdapter(List<Utterance> utteranceList) {
+
+    public UtteranceAdapter(List<Utterance> utteranceList, FragmentManager fragmentManager) {
         this.utteranceList = utteranceList;
+        this.fragmentManager = fragmentManager;
     }
+
 
     @NonNull
     @Override
@@ -42,14 +48,21 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
         holder.tvRomaji.setText(utterance.getSurfaceRomaji());
         holder.tvTranslation.setText(utterance.getTranslation());
 
-        if (utterance.isFixedExpression()) {
-            holder.tvUtteranceType.setText("Выражение");
+        holder.tvUtteranceType.setText(
+                utterance.isFixedExpression() ? "Выражение" : "Шаблон");
+
+        String stepName = utterance.getStepName();
+        if (stepName != null && !stepName.isEmpty()) {
+            holder.tvStepTag.setVisibility(View.VISIBLE);
+            holder.tvStepTag.setText(stepName);
         } else {
-            holder.tvUtteranceType.setText("Шаблон");
+            holder.tvStepTag.setVisibility(View.GONE);
         }
 
         holder.btnExpandUtterance.setOnClickListener(v -> {
-            // TODO: открыть расширенную карточку
+            ExpandedUtteranceBottomSheet sheet =
+                    ExpandedUtteranceBottomSheet.newInstance(utterance.getId());
+            sheet.show(fragmentManager, "expanded_utterance");
         });
 
         holder.btnPlayAudio.setOnClickListener(v -> {
@@ -65,6 +78,7 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
     static class UtteranceViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvUtteranceType;
+        TextView tvStepTag;
         TextView tvRomaji;
         TextView tvTranslation;
         ImageButton btnExpandUtterance;
@@ -74,6 +88,7 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
             super(itemView);
 
             tvUtteranceType = itemView.findViewById(R.id.tvUtteranceType);
+            tvStepTag          = itemView.findViewById(R.id.tvStepTag);
             tvRomaji = itemView.findViewById(R.id.tvRomaji);
             tvTranslation = itemView.findViewById(R.id.tvTranslation);
             btnExpandUtterance = itemView.findViewById(R.id.btnExpandUtterance);

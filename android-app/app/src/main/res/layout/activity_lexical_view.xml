@@ -49,13 +49,13 @@
         android:id="@+id/btnSettings"
         android:layout_width="230dp"
         android:layout_height="50dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="836dp"
-        android:contentDescription="Вернуться на предыдущий экран"
+        android:contentDescription="Настроить шаги сценария"
         android:scaleType="fitXY"
         android:src="@drawable/scenario_step_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/btnCardStart"
