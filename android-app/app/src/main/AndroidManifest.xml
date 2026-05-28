@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JapaneseVocabularyLearningSystem">
         <activity
+            android:name=".CardLearnActivity"
+            android:exported="false" />
+        <activity
             android:name=".TrainingFinishedActivity"
             android:exported="false" />
         <activity
