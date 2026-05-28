@@ -27,8 +27,9 @@ public class LexicalViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lexical_view);
 
-        ImageView btnBack = findViewById(R.id.btnBack);
+        ImageView btnBack     = findViewById(R.id.btnBack);
         ImageView btnSettings = findViewById(R.id.btnSettings);
+        ImageView btnCardStart = findViewById(R.id.btnCardStart);
         RecyclerView rvUtterances = findViewById(R.id.rvUtterances);
 
         allUtterances = MockDataProvider.getConvenienceStoreUtterances();
@@ -49,31 +50,46 @@ public class LexicalViewActivity extends AppCompatActivity {
             sheet.setOnStepsAppliedListener(selectedStepIds -> {
                 currentSelectedStepIds = new ArrayList<>(selectedStepIds);
                 adapter.updateData(filterBySteps(selectedStepIds));
+                // сброс прогресса карточного режима при смене шагов
+                CardLearnActivity.clearSavedState();
             });
 
             sheet.show(getSupportFragmentManager(), "steps_sheet");
+        });
+
+        btnCardStart.setOnClickListener(v -> {
+            // передаём только карточки из выбранных шагов (или все, если фильтр не задан)
+            List<Utterance> cardsToStudy = currentSelectedStepIds == null
+                    ? allUtterances
+                    : filterBySteps(currentSelectedStepIds);
+
+            ArrayList<String> utteranceIds = new ArrayList<>();
+            for (Utterance u : cardsToStudy) utteranceIds.add(u.getId());
+
+            Intent intent = new Intent(this, CardLearnActivity.class);
+            intent.putStringArrayListExtra("utteranceIds", utteranceIds);
+            if (currentSelectedStepIds != null) {
+                intent.putStringArrayListExtra("stepIds",
+                        new ArrayList<>(currentSelectedStepIds));
+            }
+            startActivity(intent);
         });
     }
 
     private List<Utterance> filterBySteps(List<String> selectedStepIds) {
         Map<String, List<String>> stepMap = MockDataProvider.getConvenienceStoreStepMap();
 
-        // Собираем все utterance ID для выбранных шагов
         List<String> allowedIds = new ArrayList<>();
         for (String stepId : selectedStepIds) {
             List<String> ids = stepMap.get(stepId);
             if (ids != null) allowedIds.addAll(ids);
         }
 
-        // Оставляем только те utterances, чьи ID в списке
         List<Utterance> result = new ArrayList<>();
         for (Utterance u : allUtterances) {
-            if (allowedIds.contains(u.getId())) {
-                result.add(u);
-            }
+            if (allowedIds.contains(u.getId())) result.add(u);
         }
 
-        // Если ничего не нашлось — показываем всё (защита)
         return result.isEmpty() ? new ArrayList<>(allUtterances) : result;
     }
 }
