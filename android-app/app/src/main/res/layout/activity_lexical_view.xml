@@ -11,16 +11,14 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvUtterances"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="850dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:paddingTop="106dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingTop="106dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/lexicalTopRectangle"
@@ -49,11 +47,12 @@
         android:id="@+id/btnSettings"
         android:layout_width="230dp"
         android:layout_height="50dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginStart="16dp"
         android:contentDescription="Настроить шаги сценария"
         android:scaleType="fitXY"
         android:src="@drawable/scenario_step_button"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

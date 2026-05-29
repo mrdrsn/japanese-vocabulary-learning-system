@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,20 +17,18 @@ import androidx.fragment.app.Fragment;
 
 import com.example.japanesevocabularylearningsystem.R;
 import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
-import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeC;
 import com.example.japanesevocabularylearningsystem.model.Role;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExerciseTypeAFragment extends Fragment {
+public class ExerciseTypeCFragment extends Fragment {
 
-    private static final int ACCENT_COLOR = 0xFF8E94FF;
+    private static final int ACCENT_COLOR = 0xFF9EAACF;
 
-    private static final String ARG_INSTRUCTION = "instruction";
-    private static final String ARG_TRANSLATION = "translation";
-    private static final String ARG_ROMAJI = "romaji";
-    private static final String ARG_ROLE_ID = "roleId";
+    private static final String ARG_UTTERANCE_ID = "utteranceId";
+    private static final String ARG_CORRECT_ROLE_ID = "correctRoleId";
     private static final String ARG_OPTIONS = "options";
     private static final String ARG_INDEX = "index";
     private static final String ARG_TOTAL = "total";
@@ -36,15 +36,19 @@ public class ExerciseTypeAFragment extends Fragment {
     private OnAnswerSubmittedListener listener;
     private AppCompatButton[] optionButtons;
     private AppCompatButton btnSubmit;
+    private LinearLayout btnRoleR1, btnRoleR2;
+    private View circleR1, circleR2;
+    private TextView tvRoleR1, tvRoleR2;
+    private String selectedRoleId = null;
+    private int selectedOptionIndex = -1;
+    private String roleIdFirst, roleIdSecond;
 
-    public static ExerciseTypeAFragment newInstance(ExerciseTypeA exercise, int index, int total) {
-        ExerciseTypeAFragment fragment = new ExerciseTypeAFragment();
+    public static ExerciseTypeCFragment newInstance(ExerciseTypeC exercise, int index, int total) {
+        ExerciseTypeCFragment fragment = new ExerciseTypeCFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_INSTRUCTION, exercise.getInstruction());
-        args.putString(ARG_TRANSLATION, exercise.getTranslation());
-        args.putString(ARG_ROMAJI, exercise.getRomajiWithGap());
-        args.putString(ARG_ROLE_ID, exercise.getRoleId());
-        args.putStringArrayList(ARG_OPTIONS, new ArrayList<>(exercise.getOptions()));
+        args.putString(ARG_UTTERANCE_ID, exercise.getUtteranceId());
+        args.putString(ARG_CORRECT_ROLE_ID, exercise.getCorrectRoleId());
+        args.putStringArrayList(ARG_OPTIONS, new ArrayList<>(exercise.getTranslationOptions()));
         args.putInt(ARG_INDEX, index);
         args.putInt(ARG_TOTAL, total);
         fragment.setArguments(args);
@@ -60,7 +64,7 @@ public class ExerciseTypeAFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_exercise_type_a, container, false);
+        return inflater.inflate(R.layout.fragment_exercise_type_c, container, false);
     }
 
     @Override
@@ -72,24 +76,36 @@ public class ExerciseTypeAFragment extends Fragment {
         int index = args.getInt(ARG_INDEX);
         int total = args.getInt(ARG_TOTAL);
 
-        ImageView btnBack = view.findViewById(R.id.btnBack);
-        TextView tvCounter = view.findViewById(R.id.tvCounter);
-        android.widget.ProgressBar progressBar = view.findViewById(R.id.progressBar);
-
-        btnBack.setOnClickListener(v -> requireActivity().finish());
-        tvCounter.setText((index + 1) + "/" + total);
+        view.<ImageView>findViewById(R.id.btnBack).setOnClickListener(v -> requireActivity().finish());
+        view.<TextView>findViewById(R.id.tvCounter).setText((index + 1) + "/" + total);
+        ProgressBar progressBar = view.findViewById(R.id.progressBar);
         progressBar.setMax(total);
         progressBar.setProgress(index + 1);
 
         TextView tvInstruction = view.findViewById(R.id.tvInstruction);
-        tvInstruction.setText(args.getString(ARG_INSTRUCTION));
+        tvInstruction.setText("Укажите роль и переведите предложение");
         tvInstruction.setBackground(makePill(ACCENT_COLOR, 24));
 
-        view.<TextView>findViewById(R.id.tvTranslation).setText(args.getString(ARG_TRANSLATION));
-        view.<TextView>findViewById(R.id.tvRomajiGap).setText(args.getString(ARG_ROMAJI));
+        view.findViewById(R.id.btnSpeaker).setOnClickListener(v -> {
+            // TODO: воспроизвести аудио для args.getString(ARG_UTTERANCE_ID)
+        });
 
-        Role role = MockDataProvider.getRoleById(args.getString(ARG_ROLE_ID));
-        view.<TextView>findViewById(R.id.tvRoleValue).setText(role != null ? role.getName() : "");
+        List<Role> roles = MockDataProvider.getRoles();
+        btnRoleR1 = view.findViewById(R.id.btnRoleR1);
+        btnRoleR2 = view.findViewById(R.id.btnRoleR2);
+        circleR1 = view.findViewById(R.id.circleR1);
+        circleR2 = view.findViewById(R.id.circleR2);
+        tvRoleR1 = view.findViewById(R.id.tvRoleR1);
+        tvRoleR2 = view.findViewById(R.id.tvRoleR2);
+
+        if (roles.size() >= 2) {
+            roleIdFirst = roles.get(0).getId();
+            roleIdSecond = roles.get(1).getId();
+            tvRoleR1.setText(roles.get(0).getName());
+            tvRoleR2.setText(roles.get(1).getName());
+            btnRoleR1.setOnClickListener(v -> selectRole(roleIdFirst));
+            btnRoleR2.setOnClickListener(v -> selectRole(roleIdSecond));
+        }
 
         List<String> options = args.getStringArrayList(ARG_OPTIONS);
         btnSubmit = view.findViewById(R.id.btnSubmitAnswer);
@@ -106,7 +122,7 @@ public class ExerciseTypeAFragment extends Fragment {
                 btn.setText(options.get(i));
                 btn.setVisibility(View.VISIBLE);
                 final int idx = i;
-                btn.setOnClickListener(v -> selectOption(idx));
+                btn.setOnClickListener(v -> selectTranslationOption(idx));
             } else {
                 btn.setVisibility(View.GONE);
             }
@@ -114,7 +130,23 @@ public class ExerciseTypeAFragment extends Fragment {
         btnSubmit.setOnClickListener(v -> { if (listener != null) listener.onAnswerSubmitted(); });
     }
 
-    private void selectOption(int index) {
+    private void selectRole(String roleId) {
+        selectedRoleId = roleId;
+        boolean firstSelected = roleId.equals(roleIdFirst);
+
+        btnRoleR1.setBackground(makePill(firstSelected ? ACCENT_COLOR : 0xFFFFFFFF, 14));
+        circleR1.setBackgroundResource(firstSelected ? R.drawable.circle_filled : R.drawable.circle_outline);
+        tvRoleR1.setTextColor(firstSelected ? 0xFFFFFFFF : 0xFF1A1A1A);
+
+        btnRoleR2.setBackground(makePill(!firstSelected ? ACCENT_COLOR : 0xFFFFFFFF, 14));
+        circleR2.setBackgroundResource(!firstSelected ? R.drawable.circle_filled : R.drawable.circle_outline);
+        tvRoleR2.setTextColor(!firstSelected ? 0xFFFFFFFF : 0xFF1A1A1A);
+
+        updateSubmitVisibility();
+    }
+
+    private void selectTranslationOption(int index) {
+        selectedOptionIndex = index;
         for (int i = 0; i < optionButtons.length; i++) {
             if (i == index) {
                 optionButtons[i].setBackground(makePill(ACCENT_COLOR, 14));
@@ -124,7 +156,13 @@ public class ExerciseTypeAFragment extends Fragment {
                 optionButtons[i].setTextColor(0xFF1A1A1A);
             }
         }
-        btnSubmit.setVisibility(View.VISIBLE);
+        updateSubmitVisibility();
+    }
+
+    private void updateSubmitVisibility() {
+        if (selectedRoleId != null && selectedOptionIndex >= 0) {
+            btnSubmit.setVisibility(View.VISIBLE);
+        }
     }
 
     private GradientDrawable makePill(int color, int radiusDp) {

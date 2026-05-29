@@ -21,12 +21,16 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
     private List<Utterance> utteranceList;
     private final FragmentManager fragmentManager;
 
-
     public UtteranceAdapter(List<Utterance> utteranceList, FragmentManager fragmentManager) {
         this.utteranceList = utteranceList;
         this.fragmentManager = fragmentManager;
     }
 
+    public void updateData(List<Utterance> newList) {
+        utteranceList.clear();
+        utteranceList.addAll(newList);
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -35,11 +39,6 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
                 .inflate(R.layout.item_utterance, parent, false);
         return new UtteranceViewHolder(view);
     }
-    public void updateData(List<Utterance> newList) {
-        utteranceList.clear();
-        utteranceList.addAll(newList);
-        notifyDataSetChanged();
-    }
 
     @Override
     public void onBindViewHolder(@NonNull UtteranceViewHolder holder, int position) {
@@ -47,17 +46,6 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
 
         holder.tvRomaji.setText(utterance.getSurfaceRomaji());
         holder.tvTranslation.setText(utterance.getTranslation());
-
-        holder.tvUtteranceType.setText(
-                utterance.isFixedExpression() ? "Выражение" : "Шаблон");
-
-        String stepName = utterance.getStepName();
-        if (stepName != null && !stepName.isEmpty()) {
-            holder.tvStepTag.setVisibility(View.VISIBLE);
-            holder.tvStepTag.setText(stepName);
-        } else {
-            holder.tvStepTag.setVisibility(View.GONE);
-        }
 
         holder.btnExpandUtterance.setOnClickListener(v -> {
             ExpandedUtteranceBottomSheet sheet =
@@ -77,8 +65,6 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
 
     static class UtteranceViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvUtteranceType;
-        TextView tvStepTag;
         TextView tvRomaji;
         TextView tvTranslation;
         ImageButton btnExpandUtterance;
@@ -86,13 +72,10 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
 
         public UtteranceViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            tvUtteranceType = itemView.findViewById(R.id.tvUtteranceType);
-            tvStepTag          = itemView.findViewById(R.id.tvStepTag);
-            tvRomaji = itemView.findViewById(R.id.tvRomaji);
-            tvTranslation = itemView.findViewById(R.id.tvTranslation);
+            tvRomaji           = itemView.findViewById(R.id.tvRomaji);
+            tvTranslation      = itemView.findViewById(R.id.tvTranslation);
             btnExpandUtterance = itemView.findViewById(R.id.btnExpandUtterance);
-            btnPlayAudio = itemView.findViewById(R.id.btnPlayAudio);
+            btnPlayAudio       = itemView.findViewById(R.id.btnPlayAudio);
         }
     }
 }

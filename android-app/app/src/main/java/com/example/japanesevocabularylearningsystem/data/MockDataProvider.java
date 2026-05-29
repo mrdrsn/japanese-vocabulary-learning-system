@@ -3,11 +3,15 @@ package com.example.japanesevocabularylearningsystem.data;
 import com.example.japanesevocabularylearningsystem.model.AnswerOption;
 import com.example.japanesevocabularylearningsystem.model.CommunicativeIntent;
 import com.example.japanesevocabularylearningsystem.model.Exercise;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeB;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeC;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeD;
 import com.example.japanesevocabularylearningsystem.model.Role;
 import com.example.japanesevocabularylearningsystem.model.Scenario;
 import com.example.japanesevocabularylearningsystem.model.ScenarioStep;
+import com.example.japanesevocabularylearningsystem.model.TrainingExercise;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
-import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,13 +23,10 @@ public class MockDataProvider {
 
     public static List<Scenario> getScenarios() {
         List<Scenario> scenarios = new ArrayList<>();
-
         scenarios.add(new Scenario("SC1", "Convenience Store"));
         scenarios.add(new Scenario("SC2", "Cafe / Restaurant"));
-
         return scenarios;
     }
-
 
     public static List<Role> getRoles() {
         List<Role> roles = new ArrayList<>();
@@ -61,27 +62,6 @@ public class MockDataProvider {
         return null;
     }
 
-
-    public static List<ExerciseTypeA> getTypeAExercises() {
-        List<ExerciseTypeA> list = new ArrayList<>();
-
-        list.add(new ExerciseTypeA(
-                "Закончите фразу продавца...",
-                "Вам разогреть это?",
-                "Kochira ni ________masuka?",
-                Arrays.asList("goiriyō", "atatame", "okute", "ijō")
-        ));
-
-        list.add(new ExerciseTypeA(
-                "Закончите фразу продавца...",
-                "Вам нужен пакет?",
-                "Rejibukuro wa ________ desu ka?",
-                Arrays.asList("goiriyō", "atatame", "okute", "masuka")
-        ));
-
-        return list;
-    }
-    // Шаги сценария "Convenience Store"
     public static List<ScenarioStep> getConvenienceStoreSteps() {
         List<ScenarioStep> steps = new ArrayList<>();
         steps.add(new ScenarioStep("S1", "Приветствие", true));
@@ -94,7 +74,6 @@ public class MockDataProvider {
         return steps;
     }
 
-    // Какие utterance ID относятся к каждому шагу (временная заглушка — до подключения БД)
     public static Map<String, List<String>> getConvenienceStoreStepMap() {
         Map<String, List<String>> map = new HashMap<>();
         map.put("S1", Arrays.asList("U9"));
@@ -106,54 +85,18 @@ public class MockDataProvider {
         map.put("S7", Arrays.asList("U9"));
         return map;
     }
+
     public static List<Utterance> getConvenienceStoreUtterances() {
         List<Utterance> utterances = new ArrayList<>();
-
-        utterances.add(new Utterance("U1",
-                "Rejibukuro wa irimasu ka",
-                "Вам нужен пакет?",
-                false, "R2", "CI1", "Оплата"));
-
-        utterances.add(new Utterance("U2",
-                "Rejibukuro goiriyou desu ka",
-                "Вам нужен пакет?",
-                false, "R2", "CI2", "Оплата"));
-
-        utterances.add(new Utterance("U3",
-                "Supuun wa yoroshii desu ka",
-                "Вам нужна ложка?",
-                false, "R2", "CI1", "Завершение"));
-
-        utterances.add(new Utterance("U4",
-                "Rejibukuro wa daijoubu desu",
-                "Пакет не нужен.",
-                false, "R1", "CI4", "Оплата"));
-
-        utterances.add(new Utterance("U5",
-                "Ohashi onegaishimasu",
-                "Дайте, пожалуйста, палочки для еды.",
-                false, "R1", "CI5", "Получение товара"));
-
-        utterances.add(new Utterance("U6",
-                "Kochira atatamemasu ka",
-                "Вам разогреть это?",
-                true, "R2", "CI1", "Разогрев"));
-
-        utterances.add(new Utterance("U7",
-                "Hai onegaishimasu",
-                "Да, пожалуйста.",
-                true, "R1", "CI3", "Разогрев"));
-
-        utterances.add(new Utterance("U8",
-                "Daijoubu desu",
-                "Нет, спасибо.",
-                true, "R1", "CI4", "Оплата"));
-
-        utterances.add(new Utterance("U9",
-                "Arigato gozaimasu",
-                "Большое спасибо.",
-                true, "R2", "CI7", "Завершение"));
-
+        utterances.add(new Utterance("U1","Rejibukuro wa irimasu ka","Вам нужен пакет?",false,"R2","CI1","Оплата"));
+        utterances.add(new Utterance("U2","Rejibukuro goiriyou desu ka","Вам нужен пакет?",false,"R2","CI2","Оплата"));
+        utterances.add(new Utterance("U3","Supuun wa yoroshii desu ka","Вам нужна ложка?",false,"R2","CI1","Завершение"));
+        utterances.add(new Utterance("U4","Rejibukuro wa daijoubu desu","Пакет не нужен.",false,"R1","CI4","Оплата"));
+        utterances.add(new Utterance("U5","Ohashi onegaishimasu","Дайте, пожалуйста, палочки для еды.",false,"R1","CI5","Получение товара"));
+        utterances.add(new Utterance("U6","Kochira atatamemasu ka","Вам разогреть это?",true,"R2","CI1","Разогрев"));
+        utterances.add(new Utterance("U7","Hai onegaishimasu","Да, пожалуйста.",true,"R1","CI3","Разогрев"));
+        utterances.add(new Utterance("U8","Daijoubu desu","Нет, спасибо.",true,"R1","CI4","Оплата"));
+        utterances.add(new Utterance("U9","Arigato gozaimasu","Большое спасибо.",true,"R2","CI7","Завершение"));
         return utterances;
     }
 
@@ -163,37 +106,80 @@ public class MockDataProvider {
         }
         return null;
     }
+
     public static List<Exercise> getConvenienceStoreExercises() {
         List<Exercise> exercises = new ArrayList<>();
-
-        exercises.add(new Exercise(
-                "Rejibukuro wa irimasu ka",
-                Arrays.asList(
-                        new AnswerOption("Вам нужен пакет?", true),
-                        new AnswerOption("Где касса?", false),
-                        new AnswerOption("Спасибо большое.", false)
-                )
-        ));
-
-        exercises.add(new Exercise(
-                "Ohashi onegaishimasu",
-                Arrays.asList(
-                        new AnswerOption("Пожалуйста, разогрейте это.", false),
-                        new AnswerOption("Дайте, пожалуйста, палочки для еды.", true),
-                        new AnswerOption("Нет, спасибо.", false)
-                )
-        ));
-
-        exercises.add(new Exercise(
-                "Kochira atatamemasu ka",
-                Arrays.asList(
-                        new AnswerOption("Вам разогреть это?", true),
-                        new AnswerOption("Вам нужен пакет?", false),
-                        new AnswerOption("Я расплачусь картой.", false)
-                )
-        ));
-
+        exercises.add(new Exercise("Rejibukuro wa irimasu ka", Arrays.asList(
+                new AnswerOption("Вам нужен пакет?", true),
+                new AnswerOption("Где касса?", false),
+                new AnswerOption("Спасибо большое.", false))));
+        exercises.add(new Exercise("Ohashi onegaishimasu", Arrays.asList(
+                new AnswerOption("Пожалуйста, разогрейте это.", false),
+                new AnswerOption("Дайте, пожалуйста, палочки для еды.", true),
+                new AnswerOption("Нет, спасибо.", false))));
+        exercises.add(new Exercise("Kochira atatamemasu ka", Arrays.asList(
+                new AnswerOption("Вам разогреть это?", true),
+                new AnswerOption("Вам нужен пакет?", false),
+                new AnswerOption("Я расплачусь картой.", false))));
         return exercises;
     }
-}
 
+    public static List<ExerciseTypeA> getTypeAExercises() {
+        List<ExerciseTypeA> list = new ArrayList<>();
+        list.add(new ExerciseTypeA(
+                "Закончите фразу продавца...",
+                "Вам разогреть это?",
+                "Kochira ________masuka?",
+                "R2",
+                Arrays.asList("goiriyō", "atatame", "okute", "ijō"),
+                1));
+        list.add(new ExerciseTypeA(
+                "Закончите фразу продавца...",
+                "Вам нужен пакет?",
+                "Rejibukuro wa ________ desu ka?",
+                "R2",
+                Arrays.asList("goiriyō", "atatame", "okute", "masuka"),
+                0));
+        return list;
+    }
+
+    public static List<ExerciseTypeB> getTypeBExercises() {
+        List<ExerciseTypeB> list = new ArrayList<>();
+        list.add(new ExerciseTypeB("U6", "R2",
+                Arrays.asList("Вам разогреть это?","Где касса?","Спасибо большое.","Вам нужен пакет?"), 0));
+        list.add(new ExerciseTypeB("U1", "R2",
+                Arrays.asList("Нет, спасибо.","Дайте, пожалуйста, палочки.","Вам нужен пакет?","Пожалуйста, разогрейте."), 2));
+        list.add(new ExerciseTypeB("U5", "R1",
+                Arrays.asList("Вам нужна ложка?","Дайте, пожалуйста, палочки для еды.","Нет, спасибо.","Я расплачусь картой."), 1));
+        return list;
+    }
+
+    public static List<ExerciseTypeC> getTypeCExercises() {
+        List<ExerciseTypeC> list = new ArrayList<>();
+        list.add(new ExerciseTypeC("U5", "R1",
+                Arrays.asList("Дайте, пожалуйста, палочки для еды.","Вам нужен пакет?","Нет, спасибо.","Спасибо большое."), 0));
+        list.add(new ExerciseTypeC("U6", "R2",
+                Arrays.asList("Да, пожалуйста.","Вам разогреть это?","Нет, спасибо.","Где касса?"), 1));
+        return list;
+    }
+
+    public static List<ExerciseTypeD> getTypeDExercises() {
+        List<ExerciseTypeD> list = new ArrayList<>();
+        list.add(new ExerciseTypeD("U6",
+                Arrays.asList("Вам разогреть это?","Вам нужен пакет?"), 0,
+                Arrays.asList("Да, пожалуйста.","Спасибо."), 0));
+        list.add(new ExerciseTypeD("U1",
+                Arrays.asList("Вам нужен пакет?","Вам разогреть это?"), 0,
+                Arrays.asList("Да, пожалуйста.","Пакет не нужен."), 1));
+        return list;
+    }
+
+    public static List<TrainingExercise> getTrainingExercises() {
+        List<TrainingExercise> list = new ArrayList<>();
+        for (ExerciseTypeA e : getTypeAExercises()) list.add(TrainingExercise.ofA(e));
+        for (ExerciseTypeB e : getTypeBExercises()) list.add(TrainingExercise.ofB(e));
+        for (ExerciseTypeC e : getTypeCExercises()) list.add(TrainingExercise.ofC(e));
+        for (ExerciseTypeD e : getTypeDExercises()) list.add(TrainingExercise.ofD(e));
+        return list;
+    }
+}

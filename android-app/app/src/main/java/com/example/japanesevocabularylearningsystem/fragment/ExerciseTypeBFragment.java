@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,19 +16,17 @@ import androidx.fragment.app.Fragment;
 
 import com.example.japanesevocabularylearningsystem.R;
 import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
-import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeB;
 import com.example.japanesevocabularylearningsystem.model.Role;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExerciseTypeAFragment extends Fragment {
+public class ExerciseTypeBFragment extends Fragment {
 
-    private static final int ACCENT_COLOR = 0xFF8E94FF;
+    private static final int ACCENT_COLOR = 0xFF8EC3FF;
 
-    private static final String ARG_INSTRUCTION = "instruction";
-    private static final String ARG_TRANSLATION = "translation";
-    private static final String ARG_ROMAJI = "romaji";
+    private static final String ARG_UTTERANCE_ID = "utteranceId";
     private static final String ARG_ROLE_ID = "roleId";
     private static final String ARG_OPTIONS = "options";
     private static final String ARG_INDEX = "index";
@@ -37,12 +36,10 @@ public class ExerciseTypeAFragment extends Fragment {
     private AppCompatButton[] optionButtons;
     private AppCompatButton btnSubmit;
 
-    public static ExerciseTypeAFragment newInstance(ExerciseTypeA exercise, int index, int total) {
-        ExerciseTypeAFragment fragment = new ExerciseTypeAFragment();
+    public static ExerciseTypeBFragment newInstance(ExerciseTypeB exercise, int index, int total) {
+        ExerciseTypeBFragment fragment = new ExerciseTypeBFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_INSTRUCTION, exercise.getInstruction());
-        args.putString(ARG_TRANSLATION, exercise.getTranslation());
-        args.putString(ARG_ROMAJI, exercise.getRomajiWithGap());
+        args.putString(ARG_UTTERANCE_ID, exercise.getUtteranceId());
         args.putString(ARG_ROLE_ID, exercise.getRoleId());
         args.putStringArrayList(ARG_OPTIONS, new ArrayList<>(exercise.getOptions()));
         args.putInt(ARG_INDEX, index);
@@ -60,7 +57,7 @@ public class ExerciseTypeAFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_exercise_type_a, container, false);
+        return inflater.inflate(R.layout.fragment_exercise_type_b, container, false);
     }
 
     @Override
@@ -72,21 +69,19 @@ public class ExerciseTypeAFragment extends Fragment {
         int index = args.getInt(ARG_INDEX);
         int total = args.getInt(ARG_TOTAL);
 
-        ImageView btnBack = view.findViewById(R.id.btnBack);
-        TextView tvCounter = view.findViewById(R.id.tvCounter);
-        android.widget.ProgressBar progressBar = view.findViewById(R.id.progressBar);
-
-        btnBack.setOnClickListener(v -> requireActivity().finish());
-        tvCounter.setText((index + 1) + "/" + total);
+        view.<ImageView>findViewById(R.id.btnBack).setOnClickListener(v -> requireActivity().finish());
+        view.<TextView>findViewById(R.id.tvCounter).setText((index + 1) + "/" + total);
+        ProgressBar progressBar = view.findViewById(R.id.progressBar);
         progressBar.setMax(total);
         progressBar.setProgress(index + 1);
 
         TextView tvInstruction = view.findViewById(R.id.tvInstruction);
-        tvInstruction.setText(args.getString(ARG_INSTRUCTION));
+        tvInstruction.setText("Прослушайте и переведите фразу");
         tvInstruction.setBackground(makePill(ACCENT_COLOR, 24));
 
-        view.<TextView>findViewById(R.id.tvTranslation).setText(args.getString(ARG_TRANSLATION));
-        view.<TextView>findViewById(R.id.tvRomajiGap).setText(args.getString(ARG_ROMAJI));
+        view.findViewById(R.id.btnSpeaker).setOnClickListener(v -> {
+            // TODO: воспроизвести аудио для args.getString(ARG_UTTERANCE_ID)
+        });
 
         Role role = MockDataProvider.getRoleById(args.getString(ARG_ROLE_ID));
         view.<TextView>findViewById(R.id.tvRoleValue).setText(role != null ? role.getName() : "");
