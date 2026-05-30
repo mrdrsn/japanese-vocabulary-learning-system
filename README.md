@@ -85,7 +85,7 @@
 
 ## Схема базы знаний
 
-![Knowledge Graph Schema](docs/diagrams/Knowledge-graph-ER-scheme.png)
+![Knowledge Graph Schema](docs/diagrams/Knowledge-graph-base-scheme.png)
 
 ## Пример экранной формы
 
