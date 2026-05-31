@@ -8,7 +8,9 @@ import org.springframework.data.neo4j.core.schema.Property;
 public class CommunicativeIntent {
     @Id private String id;
     @Property("name") private String name;
+    @Property("display_name") private String displayName;
 
     public String getId() { return id; }
     public String getName() { return name; }
+    public String getDisplayName() { return displayName; }
 }

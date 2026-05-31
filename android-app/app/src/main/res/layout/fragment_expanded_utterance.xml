@@ -1,248 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
-    android:paddingStart="12dp"
-    android:paddingEnd="12dp"
->
-    <androidx.cardview.widget.CardView
+    android:background="@drawable/bg_dialog_card">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="#E5E5E5"
-        app:cardCornerRadius="36dp"
-        app:cardElevation="10dp">
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="32dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Строка 1: тип + кнопки -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:minHeight="340dp"
-            android:paddingTop="22dp"
-            android:paddingBottom="28dp">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <!-- тег типа: Выражение / Шаблон -->
             <TextView
                 android:id="@+id/tvUtteranceType"
-                android:layout_width="81dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="27dp"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
                 android:background="@drawable/bg_utterance_type"
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:gravity="center"
                 android:includeFontPadding="false"
-                android:text="Выражение"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Слово"
                 android:textColor="#4A4A4A"
-                android:textSize="12sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:textSize="12sp" />
 
-            <!-- тег шага (фиолетовый) -->
-            <TextView
-                android:id="@+id/tvStepTag"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginStart="7dp"
-                android:background="@drawable/bg_step_tag_purple"
-                android:fontFamily="@font/sfprodisplay_regular"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="Оплата"
-                android:textColor="#4A4A4A"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="@id/tvUtteranceType"
-                app:layout_constraintStart_toEndOf="@id/tvUtteranceType"
-                app:layout_constraintTop_toTopOf="@id/tvUtteranceType" />
-
-            <!-- кнопка свернуть (сверху справа) -->
-
-            <!-- кнопка аудио (ниже кнопки свернуть, 6dp) -->
-
-            <!-- ромадзи (32sp bold) -->
-
-            <!-- перевод (21sp) -->
-
-            <ImageButton
-                android:id="@+id/btnCollapse"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:layout_marginStart="332dp"
-                android:layout_marginTop="0dp"
-                android:contentDescription="Свернуть"
-                android:padding="7dp"
-                android:src="@drawable/ic_minimize"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@null" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <ImageButton
                 android:id="@+id/btnPlayAudio"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:layout_marginStart="284dp"
-                android:layout_marginTop="0dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Воспроизвести аудио"
-                android:padding="5dp"
-                android:src="@drawable/ic_speakerv2"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_speaker"
                 app:tint="@null" />
 
+            <ImageButton
+                android:id="@+id/btnClose"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="4dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Закрыть"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_expand"
+                app:tint="@null" />
+
+        </LinearLayout>
+
+        <!-- Ромадзи -->
+        <TextView
+            android:id="@+id/tvRomaji"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/sfprodisplay_medium"
+            android:includeFontPadding="false"
+            android:text=""
+            android:textColor="#000000"
+            android:textSize="26sp" />
+
+        <!-- Перевод -->
+        <TextView
+            android:id="@+id/tvTranslation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/sfprodisplay_regular"
+            android:includeFontPadding="false"
+            android:text=""
+            android:textColor="#1A1A1A"
+            android:textSize="18sp" />
+
+        <!-- Шаги  -->
+        <LinearLayout
+            android:id="@+id/llSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" />
+
+        <!-- Роль -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
             <TextView
-                android:id="@+id/tvRomaji"
-                android:layout_width="250dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="27dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="8dp"
-                android:fontFamily="@font/sfprodisplay_medium"
-                android:includeFontPadding="false"
-
-                android:text="Romaji text"
-                android:textColor="#000000"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toStartOf="@id/btnCollapse"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvUtteranceType" />
-
-            <!-- блок с информацией: Роль / Намерение / Пример -->
-
-            <TextView
-                android:id="@+id/tvTranslation"
-                android:layout_width="300dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:background="@drawable/bg_role_tag"
                 android:fontFamily="@font/sfprodisplay_regular"
+                android:gravity="center"
                 android:includeFontPadding="false"
-                android:text="Translation"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="@id/tvRomaji"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@id/tvRomaji"
-                app:layout_constraintTop_toBottomOf="@id/tvRomaji" />
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Роль"
+                android:textColor="#4A4A4A"
+                android:textSize="12sp" />
 
-            <LinearLayout
-                android:id="@+id/layoutInfo"
+            <TextView
+                android:id="@+id/tvRoleValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/sfprodisplay_regular"
+                android:text="—"
+                android:textColor="#4A4A4A"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- Намерение -->
+        <LinearLayout
+            android:id="@+id/intentRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:background="@drawable/bg_role_tag"
+                android:fontFamily="@font/sfprodisplay_regular"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Намерение"
+                android:textColor="#4A4A4A"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tvIntentValue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="27dp"
-                android:layout_marginTop="17dp"
-                android:layout_marginEnd="27dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTranslation">
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/sfprodisplay_regular"
+                android:text="—"
+                android:textColor="#4A4A4A"
+                android:textSize="14sp" />
 
-                <!-- Роль -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+        </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tvRoleLabel"
-                        android:layout_width="81dp"
-                        android:layout_height="20dp"
-                        android:background="@drawable/bg_info_tag_blue"
-                        android:fontFamily="@font/sfprodisplay_regular"
-                        android:gravity="center"
-                        android:includeFontPadding="false"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:text="Роль"
-                        android:textColor="#2D3F8F"
-                        android:textSize="12sp" />
+        <!-- Пример (плашка-заглушка) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvRoleValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="27dp"
-                        android:fontFamily="@font/sfprodisplay_regular"
-                        android:text="Кассир"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:background="@drawable/bg_role_tag"
+                android:fontFamily="@font/sfprodisplay_regular"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="Пример"
+                android:textColor="#4A4A4A"
+                android:textSize="12sp" />
 
-                </LinearLayout>
+        </LinearLayout>
 
-                <!-- Намерение -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="11dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tvIntentLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="20dp"
-                        android:background="@drawable/bg_info_tag_blue"
-                        android:fontFamily="@font/sfprodisplay_regular"
-                        android:gravity="center"
-                        android:includeFontPadding="false"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:text="Намерение"
-                        android:textColor="#2D3F8F"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvIntentValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="27dp"
-                        android:fontFamily="@font/sfprodisplay_regular"
-                        android:text="Вопрос"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <!-- Пример -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="11dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tvExampleLabel"
-                        android:layout_width="81dp"
-                        android:layout_height="20dp"
-                        android:background="@drawable/bg_info_tag_blue"
-                        android:fontFamily="@font/sfprodisplay_regular"
-                        android:gravity="center"
-                        android:includeFontPadding="false"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:text="Пример"
-                        android:textColor="#2D3F8F"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvExampleValue"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="27dp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/sfprodisplay_regular"
-                        android:text=""
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-</FrameLayout>
+    </LinearLayout>
+</ScrollView>

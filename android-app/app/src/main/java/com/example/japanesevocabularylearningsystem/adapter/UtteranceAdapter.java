@@ -49,7 +49,7 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
 
         holder.btnExpandUtterance.setOnClickListener(v -> {
             ExpandedUtteranceBottomSheet sheet =
-                    ExpandedUtteranceBottomSheet.newInstance(utterance.getId());
+                    ExpandedUtteranceBottomSheet.newInstance(utterance);
             sheet.show(fragmentManager, "expanded_utterance");
         });
 

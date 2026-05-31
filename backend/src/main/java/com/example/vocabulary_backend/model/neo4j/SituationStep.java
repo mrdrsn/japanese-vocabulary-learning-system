@@ -9,11 +9,9 @@ import java.util.List;
 @Node("ScenarioStep")
 public class SituationStep {
 
-    @Id
-    private String id;
-
-    @Property("name")
-    private String name;
+    @Id private String id;
+    @Property("name") private String name;
+    @Property("display_name") private String displayName;
 
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<Utterance> utterances;
@@ -23,6 +21,7 @@ public class SituationStep {
 
     public String getId() { return id; }
     public String getName() { return name; }
+    public String getDisplayName() { return displayName; }
     public List<Utterance> getUtterances() { return utterances; }
     public List<StructuralTemplate> getTemplates() { return templates; }
 }
