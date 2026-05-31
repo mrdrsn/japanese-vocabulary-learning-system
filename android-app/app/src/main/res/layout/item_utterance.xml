@@ -15,7 +15,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="50dp"
+        android:minHeight="100dp"
         android:paddingStart="18dp"
         android:paddingTop="14dp"
         android:paddingEnd="18dp"
@@ -92,34 +92,35 @@
 
         <TextView
             android:id="@+id/tvRomaji"
-            android:layout_width="wrap_content"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="0dp"
             android:fontFamily="@font/sfprodisplay_medium"
             android:includeFontPadding="false"
             android:text="Kekkō desu"
             android:textColor="#000000"
-            android:textSize="21sp"
+            android:textSize="20sp"
             app:layout_constraintEnd_toStartOf="@id/btnExpandUtterance"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:ignore="TextContrastCheck" />
 
-                <TextView
-                    android:id="@+id/tvTranslation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/sfprodisplay_regular"
-                    android:includeFontPadding="false"
-                    android:text="Нет, спасибо"
-                    android:textColor="#1A1A1A"
-                    android:layout_marginTop="5dp"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="@id/tvRomaji"
-                    app:layout_constraintStart_toStartOf="@id/tvRomaji"
-                    app:layout_constraintTop_toBottomOf="@id/tvRomaji" />
+        <TextView
+            android:id="@+id/tvTranslation"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/sfprodisplay_regular"
+            android:includeFontPadding="false"
+            android:text="Нет, спасибо"
+            android:textColor="#1A1A1A"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@id/tvRomaji"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/tvRomaji"
+            app:layout_constraintTop_toBottomOf="@id/tvRomaji" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.card.MaterialCardView>
