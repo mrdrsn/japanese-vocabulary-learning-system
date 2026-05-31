@@ -1,5 +1,6 @@
 package com.example.japanesevocabularylearningsystem.network;
 
+import com.example.japanesevocabularylearningsystem.network.dto.FullLexiconDto;
 import com.example.japanesevocabularylearningsystem.network.dto.ScenarioDto;
 import com.example.japanesevocabularylearningsystem.network.dto.UtteranceDto;
 
@@ -17,6 +18,6 @@ public interface ApiService {
     @GET("api/scenarios/{id}")
     Call<ScenarioDto> getScenario(@Path("id") String id);
 
-    @GET("api/scenarios/{id}/lexicon")
-    Call<List<UtteranceDto>> getLexicon(@Path("id") String id);
+    @GET("api/scenarios/{id}/full-lexicon")
+    Call<FullLexiconDto> getFullLexicon(@Path("id") String id);
 }

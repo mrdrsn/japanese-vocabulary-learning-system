@@ -16,6 +16,9 @@ import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 import com.example.japanesevocabularylearningsystem.network.ApiClient;
 import com.example.japanesevocabularylearningsystem.network.dto.UtteranceDto;
+import com.example.japanesevocabularylearningsystem.network.dto.FullLexiconDto;
+import com.example.japanesevocabularylearningsystem.network.dto.StructuralTemplateDto;
+import com.example.japanesevocabularylearningsystem.network.dto.LexicalUnitDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,20 +92,41 @@ public class LexicalViewActivity extends AppCompatActivity {
 
     private void loadLexicon() {
         setButtonsEnabled(false);
-        ApiClient.getInstance().getLexicon("SC1").enqueue(new Callback<List<UtteranceDto>>() {
+        ApiClient.getInstance().getFullLexicon("SC1").enqueue(new Callback<FullLexiconDto>() {
             @Override
-            public void onResponse(Call<List<UtteranceDto>> call, Response<List<UtteranceDto>> response) {
+            public void onResponse(Call<FullLexiconDto> call, Response<FullLexiconDto> response) {
                 progressBar.setVisibility(View.GONE);
                 setButtonsEnabled(true);
                 if (response.isSuccessful() && response.body() != null) {
                     allUtterances.clear();
-                    for (UtteranceDto dto : response.body()) {
-                        Utterance u = new Utterance(dto.id, dto.romaji, dto.ruTranslation, false);
-                        if (dto.roles != null && !dto.roles.isEmpty()) {
-                            u.setRoleId(dto.roles.get(0).id);
+                    FullLexiconDto body = response.body();
+
+                    if (body.utterances != null) {
+                        for (UtteranceDto dto : body.utterances) {
+                            Utterance u = new Utterance(dto.id, dto.romaji, dto.ruTranslation, false);
+                            if (dto.roles != null && !dto.roles.isEmpty()) {
+                                u.setRoleId(dto.roles.get(0).id);
+                            }
+                            allUtterances.add(u);
                         }
-                        allUtterances.add(u);
                     }
+
+                    if (body.structuralTemplates != null) {
+                        for (StructuralTemplateDto dto : body.structuralTemplates) {
+                            Utterance u = new Utterance(dto.id, dto.pattern, dto.translation, false);
+                            if (dto.roles != null && !dto.roles.isEmpty()) {
+                                u.setRoleId(dto.roles.get(0).id);
+                            }
+                            allUtterances.add(u);
+                        }
+                    }
+
+                    if (body.lexicalUnits != null) {
+                        for (LexicalUnitDto dto : body.lexicalUnits) {
+                            allUtterances.add(new Utterance(dto.id, dto.romaji, dto.translation, false));
+                        }
+                    }
+
                     adapter.updateData(new ArrayList<>(allUtterances));
                 } else {
                     fallbackToMock();
@@ -110,7 +134,7 @@ public class LexicalViewActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<UtteranceDto>> call, Throwable t) {
+            public void onFailure(Call<FullLexiconDto> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 setButtonsEnabled(true);
                 Toast.makeText(LexicalViewActivity.this,

@@ -13,10 +13,7 @@ public class StructuralTemplate {
     @Property("translation") private String translation;
 
     @Relationship(type = "SPOKEN_BY", direction = Relationship.Direction.OUTGOING)
-    private Role role;
-
-    @Relationship(type = "EXPRESSES", direction = Relationship.Direction.OUTGOING)
-    private CommunicativeIntent communicativeIntent;
+    private List<Role> roles;
 
     @Relationship(type = "HAS_SLOT", direction = Relationship.Direction.OUTGOING)
     private List<Slot> slots;
@@ -24,7 +21,7 @@ public class StructuralTemplate {
     public String getId() { return id; }
     public String getPattern() { return pattern; }
     public String getTranslation() { return translation; }
-    public Role getRole() { return role; }
-    public CommunicativeIntent getCommunicativeIntent() { return communicativeIntent; }
+    public List<Role> getRoles() { return roles; }
+    public void setRoles(List<Role> roles) { this.roles = roles; }
     public List<Slot> getSlots() { return slots; }
 }

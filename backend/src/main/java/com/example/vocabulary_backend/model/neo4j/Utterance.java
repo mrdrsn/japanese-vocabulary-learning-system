@@ -21,10 +21,14 @@ public class Utterance {
     @Relationship(type = "SPOKEN_BY", direction = Relationship.Direction.OUTGOING)
     private List<Role> roles;
 
+    @Relationship(type = "CONSISTS_OF", direction = Relationship.Direction.OUTGOING)
+    private List<LexicalUnit> lexicalUnits;
+
     public String getId() { return id; }
     public String getRomaji() { return romaji; }
     public String getRuTranslation() { return ruTranslation; }
     public List<Role> getRoles() { return roles; }
     public void setRoles(List<Role> roles) { this.roles = roles; }
+    public List<LexicalUnit> getLexicalUnits() { return lexicalUnits; }
     public String getAudioUrl() { return "/audio/utterances/" + id; }
 }

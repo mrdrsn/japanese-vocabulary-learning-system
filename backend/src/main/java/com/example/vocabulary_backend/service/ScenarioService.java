@@ -1,12 +1,14 @@
 package com.example.vocabulary_backend.service;
 
+import com.example.vocabulary_backend.model.ScenarioLexiconResponse;
+import com.example.vocabulary_backend.model.neo4j.LexicalUnit;
 import com.example.vocabulary_backend.model.neo4j.Scenario;
+import com.example.vocabulary_backend.model.neo4j.StructuralTemplate;
 import com.example.vocabulary_backend.model.neo4j.Utterance;
 import com.example.vocabulary_backend.repository.ScenarioRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,15 +29,37 @@ public class ScenarioService {
         filterRoles(scenario);
         return scenario;
     }
+    
 
-    public List<Utterance> getUtterances(String scenarioId) {
+    public ScenarioLexiconResponse getFullLexicon(String scenarioId) {
         Scenario scenario = scenarioRepository.findById(scenarioId).orElseThrow();
         filterRoles(scenario);
-        return scenario.getSteps().stream()
-                .filter(step -> step.getUtterances() != null)
-                .flatMap(step -> step.getUtterances().stream())
+
+        List<Utterance> utterances = scenario.getSteps().stream()
+                .filter(s -> s.getUtterances() != null)
+                .flatMap(s -> s.getUtterances().stream())
                 .distinct()
                 .collect(Collectors.toList());
+
+        List<StructuralTemplate> templates = scenario.getSteps().stream()
+                .filter(s -> s.getTemplates() != null)
+                .flatMap(s -> s.getTemplates().stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, LexicalUnit> luMap = new LinkedHashMap<>();
+        utterances.stream()
+                .filter(u -> u.getLexicalUnits() != null)
+                .flatMap(u -> u.getLexicalUnits().stream())
+                .forEach(lu -> luMap.put(lu.getId(), lu));
+        templates.stream()
+                .filter(t -> t.getSlots() != null)
+                .flatMap(t -> t.getSlots().stream())
+                .filter(s -> s.getLexicalUnits() != null)
+                .flatMap(s -> s.getLexicalUnits().stream())
+                .forEach(lu -> luMap.put(lu.getId(), lu));
+
+        return new ScenarioLexiconResponse(utterances, templates, new ArrayList<>(luMap.values()));
     }
 
     private void filterRoles(Scenario scenario) {
@@ -46,16 +70,24 @@ public class ScenarioService {
                 .collect(Collectors.toSet());
 
         scenario.getSteps().forEach(step -> {
-            if (step.getUtterances() == null) return;
-            step.getUtterances().forEach(utterance -> {
-                if (utterance.getRoles() != null) {
-                    utterance.setRoles(
-                            utterance.getRoles().stream()
-                                    .filter(r -> validRoleIds.contains(r.getId()))
-                                    .collect(Collectors.toList())
-                    );
-                }
-            });
+            if (step.getUtterances() != null) {
+                step.getUtterances().forEach(u -> {
+                    if (u.getRoles() != null) {
+                        u.setRoles(u.getRoles().stream()
+                                .filter(r -> validRoleIds.contains(r.getId()))
+                                .collect(Collectors.toList()));
+                    }
+                });
+            }
+            if (step.getTemplates() != null) {
+                step.getTemplates().forEach(t -> {
+                    if (t.getRoles() != null) {
+                        t.setRoles(t.getRoles().stream()
+                                .filter(r -> validRoleIds.contains(r.getId()))
+                                .collect(Collectors.toList()));
+                    }
+                });
+            }
         });
     }
 }

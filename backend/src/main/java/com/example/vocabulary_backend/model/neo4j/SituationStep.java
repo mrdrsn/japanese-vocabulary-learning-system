@@ -18,7 +18,11 @@ public class SituationStep {
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<Utterance> utterances;
 
+    @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
+    private List<StructuralTemplate> templates;
+
     public String getId() { return id; }
     public String getName() { return name; }
     public List<Utterance> getUtterances() { return utterances; }
+    public List<StructuralTemplate> getTemplates() { return templates; }
 }
