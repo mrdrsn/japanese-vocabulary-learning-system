@@ -21,9 +21,12 @@ public class Scenario {
     @Relationship(type = "HAS_STEP", direction = Relationship.Direction.OUTGOING)
     private List<SituationStep> steps;
 
-    // геттеры
+    @Relationship(type = "HAS", direction = Relationship.Direction.OUTGOING)
+    private List<Role> roles;
+
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDisplayName() { return displayName; }
     public List<SituationStep> getSteps() { return steps; }
+    public List<Role> getRoles() { return roles; }
 }

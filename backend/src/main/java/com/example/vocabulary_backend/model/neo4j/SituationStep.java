@@ -6,7 +6,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 import java.util.List;
 
-@Node("SituationStep")
+@Node("ScenarioStep")
 public class SituationStep {
 
     @Id
@@ -15,14 +15,10 @@ public class SituationStep {
     @Property("name")
     private String name;
 
-    @Property("display_name")
-    private String displayName;
-
     @Relationship(type = "USED_IN", direction = Relationship.Direction.INCOMING)
     private List<Utterance> utterances;
 
     public String getId() { return id; }
     public String getName() { return name; }
-    public String getDisplayName() { return displayName; }
     public List<Utterance> getUtterances() { return utterances; }
 }

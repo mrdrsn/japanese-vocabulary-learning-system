@@ -2,33 +2,34 @@ package com.example.vocabulary_backend.controller;
 
 import com.example.vocabulary_backend.model.neo4j.Scenario;
 import com.example.vocabulary_backend.model.neo4j.Utterance;
-import com.example.vocabulary_backend.repository.ScenarioRepository;
+import com.example.vocabulary_backend.service.ScenarioService;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin  // разрешает запросы с Android-эмулятора
+@CrossOrigin
 public class ScenarioController {
 
-    private final ScenarioRepository scenarioRepository;
+    private final ScenarioService scenarioService;
 
-    public ScenarioController(ScenarioRepository scenarioRepository) {
-        this.scenarioRepository = scenarioRepository;
+    public ScenarioController(ScenarioService scenarioService) {
+        this.scenarioService = scenarioService;
     }
 
     @GetMapping("/scenarios")
     public List<Scenario> getAllScenarios() {
-        return scenarioRepository.findAll();
+        return scenarioService.getAllScenarios();
     }
 
     @GetMapping("/scenarios/{id}")
     public Scenario getScenario(@PathVariable String id) {
-        return scenarioRepository.findById(id).orElseThrow();
+        return scenarioService.getScenario(id);
     }
 
     @GetMapping("/scenarios/{id}/lexicon")
     public List<Utterance> getLexicon(@PathVariable String id) {
-        return scenarioRepository.findUtterancesByScenarioId(id);
+        return scenarioService.getUtterances(id);
     }
 }
