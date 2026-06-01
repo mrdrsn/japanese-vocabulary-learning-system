@@ -99,7 +99,7 @@
             android:includeFontPadding="false"
             android:text="Kekkō desu"
             android:textColor="#000000"
-            android:textSize="20sp"
+            android:textSize="22sp"
             app:layout_constraintEnd_toStartOf="@id/btnExpandUtterance"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"

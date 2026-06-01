@@ -105,7 +105,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
         tv.setTextSize(12f);
         tv.setIncludeFontPadding(false);
         tv.setGravity(Gravity.CENTER);
-        tv.setBackground(requireContext().getDrawable(R.drawable.bg_utterance_type));
+        tv.setBackground(requireContext().getDrawable(R.drawable.bg_step_tag_purple));
 
         int ph = dpToPx(10);
         int pv = dpToPx(0);

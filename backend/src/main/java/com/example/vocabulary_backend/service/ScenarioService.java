@@ -32,29 +32,29 @@ public class ScenarioService {
         Scenario scenario = scenarioRepository.findById(scenarioId).orElseThrow();
         filterRoles(scenario);
 
-        List<LexicalItemResponse> items = new ArrayList<>();
-        Set<String> seenIds = new LinkedHashSet<>();
-        // LexicalUnit id → response being built (accumulates steps/roles/intents from parents)
-        Map<String, LexicalItemResponse> luMap = new LinkedHashMap<>();
+        // utterances дедуплицируем по id (они не дублировались)
+        // templates дедуплицируем по pattern (T1a + T1b → одна запись)
+        Map<String, LexicalItemResponse> utteranceMap = new LinkedHashMap<>();
+        Map<String, LexicalItemResponse> templateMap  = new LinkedHashMap<>();
+        Map<String, LexicalItemResponse> luMap        = new LinkedHashMap<>();
 
         for (SituationStep step : scenario.getSteps()) {
             String stepName = step.getDisplayName();
 
             if (step.getUtterances() != null) {
                 for (Utterance u : step.getUtterances()) {
-                    if (seenIds.contains(u.getId())) continue;
-                    seenIds.add(u.getId());
-
                     List<String> roles = extractRoleNames(u.getRoles());
                     String intent = extractIntentName(u.getCommunicativeIntent());
 
-                    LexicalItemResponse item = new LexicalItemResponse(
-                            u.getId(), "UTTERANCE", u.getRomaji(), u.getRuTranslation());
+                    LexicalItemResponse item = utteranceMap.computeIfAbsent(u.getId(), id -> {
+                        LexicalItemResponse r = new LexicalItemResponse(
+                                id, "UTTERANCE", u.getRomaji(), u.getRuTranslation());
+                        r.setAudioUrl("/audio/utterances/" + id);
+                        return r;
+                    });
                     item.addStep(stepName);
                     item.addRoles(roles);
                     item.addIntent(intent);
-                    item.setAudioUrl("/audio/utterances/" + u.getId());
-                    items.add(item);
 
                     if (u.getLexicalUnits() != null) {
                         for (LexicalUnit lu : u.getLexicalUnits()) {
@@ -71,18 +71,16 @@ public class ScenarioService {
 
             if (step.getTemplates() != null) {
                 for (StructuralTemplate t : step.getTemplates()) {
-                    if (seenIds.contains(t.getId())) continue;
-                    seenIds.add(t.getId());
-
                     List<String> roles = extractRoleNames(t.getRoles());
                     String intent = extractIntentName(t.getCommunicativeIntent());
 
-                    LexicalItemResponse item = new LexicalItemResponse(
-                            t.getId(), "TEMPLATE", t.getPattern(), t.getTranslation());
+                    // ключ — pattern, поэтому T1a и T1b сливаются в одну запись
+                    LexicalItemResponse item = templateMap.computeIfAbsent(t.getPattern(),
+                            k -> new LexicalItemResponse(
+                                    t.getId(), "TEMPLATE", t.getPattern(), t.getTranslation()));
                     item.addStep(stepName);
                     item.addRoles(roles);
                     item.addIntent(intent);
-                    items.add(item);
 
                     if (t.getSlots() != null) {
                         for (Slot slot : t.getSlots()) {
@@ -101,10 +99,12 @@ public class ScenarioService {
             }
         }
 
+        List<LexicalItemResponse> items = new ArrayList<>();
+        items.addAll(utteranceMap.values());
+        items.addAll(templateMap.values());
         items.addAll(luMap.values());
         return new ScenarioLexiconResponse(items);
     }
-
     private List<String> extractRoleNames(List<Role> roles) {
         if (roles == null) return Collections.emptyList();
         return roles.stream()

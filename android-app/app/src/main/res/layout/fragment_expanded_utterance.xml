@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog_card">
@@ -12,7 +11,7 @@
         android:paddingStart="24dp"
         android:paddingTop="20dp"
         android:paddingEnd="24dp"
-        android:paddingBottom="32dp">
+        android:paddingBottom="24dp">
 
         <!-- Строка 1: тип + кнопки -->
         <LinearLayout
@@ -49,7 +48,8 @@
                 android:padding="4dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_speaker"
-                app:tint="@null" />
+                app:tint="@null"
+                xmlns:app="http://schemas.android.com/apk/res-auto"/>
 
             <ImageButton
                 android:id="@+id/btnClose"
@@ -61,7 +61,8 @@
                 android:padding="4dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_expand"
-                app:tint="@null" />
+                app:tint="@null"
+                xmlns:app="http://schemas.android.com/apk/res-auto"/>
 
         </LinearLayout>
 
@@ -75,7 +76,8 @@
             android:includeFontPadding="false"
             android:text=""
             android:textColor="#000000"
-            android:textSize="26sp" />
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
         <!-- Перевод -->
         <TextView
@@ -89,26 +91,18 @@
             android:textColor="#1A1A1A"
             android:textSize="18sp" />
 
-        <!-- Шаги  -->
-        <LinearLayout
-            android:id="@+id/llSteps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical" />
-
         <!-- Роль -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:background="@drawable/bg_role_tag"
+                android:background="@drawable/bg_info_tag_blue"
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -142,7 +136,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:background="@drawable/bg_role_tag"
+                android:background="@drawable/bg_info_tag_blue"
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -165,7 +159,7 @@
 
         </LinearLayout>
 
-        <!-- Пример (плашка-заглушка) -->
+        <!-- Пример -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -175,7 +169,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:background="@drawable/bg_role_tag"
+                android:background="@drawable/bg_info_tag_blue"
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -186,6 +180,14 @@
                 android:textSize="12sp" />
 
         </LinearLayout>
+
+        <!-- Шаги — в самом низу, растягивают карточку -->
+        <LinearLayout
+            android:id="@+id/llSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" />
 
     </LinearLayout>
 </ScrollView>
