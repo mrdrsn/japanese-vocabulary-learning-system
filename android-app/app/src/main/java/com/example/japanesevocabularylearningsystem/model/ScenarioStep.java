@@ -1,6 +1,8 @@
 package com.example.japanesevocabularylearningsystem.model;
 
-public class ScenarioStep {
+import java.io.Serializable;
+
+public class ScenarioStep implements Serializable {
     private String id;
     private String name;
     private boolean isSelected;

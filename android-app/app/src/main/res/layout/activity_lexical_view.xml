@@ -11,7 +11,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvUtterances"
         android:layout_width="0dp"
-        android:layout_height="850dp"
+        android:layout_height="match_parent"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:clipToPadding="false"
@@ -45,28 +45,27 @@
 
     <ImageView
         android:id="@+id/btnSettings"
-        android:layout_width="230dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="16dp"
-        android:contentDescription="Настроить шаги сценария"
-        android:scaleType="fitXY"
-        android:src="@drawable/scenario_step_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/btnCardStart"
         android:layout_width="220dp"
         android:layout_height="50dp"
         android:layout_marginStart="172dp"
         android:layout_marginTop="44dp"
-        android:contentDescription="Вернуться на предыдущий экран"
+        android:contentDescription="Настроить шаги сценария"
         android:scaleType="fitXY"
-        android:src="@drawable/card_start_button"
+        android:src="@drawable/scenario_step_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/btnCardStart"
+        android:layout_width="230dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="Изучать карточки"
+        android:scaleType="fitXY"
+        android:src="@drawable/card_start_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"

@@ -17,7 +17,7 @@ public class StructuralTemplate {
     private List<Role> roles;
 
     @Relationship(type = "HAS_SLOT", direction = Relationship.Direction.OUTGOING)
-    private List<Slot> slots;
+    private List<TemplateSlotRelation> slots;
 
     @Relationship(type = "EXPRESSES", direction = Relationship.Direction.OUTGOING)
     private CommunicativeIntent communicativeIntent;
@@ -27,6 +27,6 @@ public class StructuralTemplate {
     public String getTranslation() { return translation; }
     public List<Role> getRoles() { return roles; }
     public void setRoles(List<Role> roles) { this.roles = roles; }
-    public List<Slot> getSlots() { return slots; }
+    public List<TemplateSlotRelation> getSlots() { return slots; }
     public CommunicativeIntent getCommunicativeIntent() { return communicativeIntent; }
 }

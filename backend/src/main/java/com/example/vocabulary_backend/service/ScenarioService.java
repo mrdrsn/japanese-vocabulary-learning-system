@@ -74,16 +74,24 @@ public class ScenarioService {
                     List<String> roles = extractRoleNames(t.getRoles());
                     String intent = extractIntentName(t.getCommunicativeIntent());
 
-                    // ключ — pattern, поэтому T1a и T1b сливаются в одну запись
                     LexicalItemResponse item = templateMap.computeIfAbsent(t.getPattern(),
-                            k -> new LexicalItemResponse(
-                                    t.getId(), "TEMPLATE", t.getPattern(), t.getTranslation()));
+                            k -> new LexicalItemResponse(t.getId(), "TEMPLATE",
+                                    t.getPattern(), t.getTranslation()));
                     item.addStep(stepName);
                     item.addRoles(roles);
                     item.addIntent(intent);
 
-                    if (t.getSlots() != null) {
-                        for (Slot slot : t.getSlots()) {
+                    if (t.getSlots() != null && !t.getSlots().isEmpty()) {
+                        // Сортируем слоты по позиции связи
+                        List<TemplateSlotRelation> sortedSlots = t.getSlots().stream()
+                                .filter(r -> r.getSlot() != null)
+                                .sorted(Comparator.comparingInt(
+                                        r -> r.getPosition() != null ? r.getPosition() : 0))
+                                .collect(Collectors.toList());
+
+                        // Все ЛЕ из всех слотов → в luMap
+                        for (TemplateSlotRelation relation : sortedSlots) {
+                            Slot slot = relation.getSlot();
                             if (slot.getLexicalUnits() == null) continue;
                             for (LexicalUnit lu : slot.getLexicalUnits()) {
                                 LexicalItemResponse luItem = luMap.computeIfAbsent(lu.getId(),
@@ -92,6 +100,47 @@ public class ScenarioService {
                                 luItem.addStep(stepName);
                                 luItem.addRoles(roles);
                                 luItem.addIntent(intent);
+                            }
+                        }
+
+                        String pattern = t.getPattern() != null ? t.getPattern() : "";
+                        String translation = t.getTranslation() != null ? t.getTranslation() : "";
+
+                        if (sortedSlots.size() == 1) {
+                            // Один слот: заменяем [X] или ________
+                            Slot slot = sortedSlots.get(0).getSlot();
+                            if (slot.getLexicalUnits() != null) {
+                                for (LexicalUnit lu : slot.getLexicalUnits()) {
+                                    String luR = lu.getRomaji() != null ? lu.getRomaji() : "";
+                                    String luT = lu.getTranslation() != null ? lu.getTranslation() : "";
+                                    item.addExample(new LexicalItemResponse.ExampleEntry(
+                                            lu.getId(), luR, fillSlot(pattern, luR), fillSlot(translation, luT)));
+                                }
+                            }
+                        } else {
+                            // Два слота: перебираем все комбинации [X] × [Y]
+                            Slot slot1 = sortedSlots.get(0).getSlot();
+                            Slot slot2 = sortedSlots.get(1).getSlot();
+                            List<LexicalUnit> lus1 = slot1.getLexicalUnits() != null
+                                    ? slot1.getLexicalUnits() : Collections.emptyList();
+                            List<LexicalUnit> lus2 = slot2.getLexicalUnits() != null
+                                    ? slot2.getLexicalUnits() : Collections.emptyList();
+
+                            for (LexicalUnit lu1 : lus1) {
+                                for (LexicalUnit lu2 : lus2) {
+                                    String lu1R = lu1.getRomaji() != null ? lu1.getRomaji() : "";
+                                    String lu2R = lu2.getRomaji() != null ? lu2.getRomaji() : "";
+                                    String lu1T = lu1.getTranslation() != null ? lu1.getTranslation() : "";
+                                    String lu2T = lu2.getTranslation() != null ? lu2.getTranslation() : "";
+                                    String filledR = pattern.replace("[X]", lu1R).replace("[Y]", lu2R);
+                                    String filledT = translation.replace("[X]", lu1T).replace("[Y]", lu2T);
+                                    // lu1 (позиция 1) — основная ЛЕ для подсветки и навигации
+                                    LexicalItemResponse.ExampleEntry entry2 =
+                                            new LexicalItemResponse.ExampleEntry(lu1.getId(), lu1R, filledR, filledT);
+                                    entry2.setLuId2(lu2.getId());
+                                    entry2.setLuRomaji2(lu2R);
+                                    item.addExample(entry2);
+                                }
                             }
                         }
                     }
@@ -144,5 +193,10 @@ public class ScenarioService {
                 }
             }
         }
+    }
+    private String fillSlot(String template, String filler) {
+        if (template.contains("[X]")) return template.replace("[X]", filler);
+        if (template.contains("________")) return template.replace("________", filler);
+        return template;
     }
 }

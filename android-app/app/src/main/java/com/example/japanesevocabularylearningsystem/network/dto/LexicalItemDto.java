@@ -11,4 +11,13 @@ public class LexicalItemDto {
     public List<String> stepDisplayNames;
     public List<String> communicativeIntentNames;
     public String audioUrl;
+    public List<ExampleEntryDto> examples;
+
+    public static class ExampleEntryDto {
+        public String luId;
+        public String luRomaji;
+        public String filledRomaji;
+        public String luTranslation;
+        public String luId2, luRomaji2;
+    }
 }

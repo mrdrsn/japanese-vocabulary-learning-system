@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical">
+
+    <!-- заголовок -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/sfprodisplay_medium"
+            android:text="Примеры употребления"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <ImageButton
+            android:id="@+id/btnCloseExamples"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@android:color/transparent"
+            android:padding="4dp"
+            android:src="@drawable/ic_collapse"
+            app:tint="@null" />
+    </LinearLayout>
+
+    <!-- шаблон в серой плашке -->
+    <TextView
+        android:id="@+id/tvExamplesPattern"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_examples_pattern"
+        android:fontFamily="@font/sfprodisplay_regular"
+        android:padding="10dp"
+        android:text=""
+        android:textColor="#4A4A4A"
+        android:textSize="15sp" />
+
+    <!-- список примеров -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvExamples"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp" />
+
+    <!-- подсказка -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/sfprodisplay_regular"
+        android:gravity="center"
+        android:text="голубым – слова, которые можно нажать и открыть"
+        android:textColor="#9E9E9E"
+        android:textSize="13sp" />
+
+</LinearLayout>

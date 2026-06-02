@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,11 +19,29 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpandedUtteranceBottomSheet extends DialogFragment {
 
     private static final String ARG_UTTERANCE = "utterance";
+
+    private Utterance templateUtterance;
+    private boolean isLuMode = false;
+    private boolean isExamplesShowing = false;
+
+    private TextView tvType;
+    private TextView tvRomaji;
+    private TextView tvTranslation;
+    private LinearLayout llSteps;
+    private TextView tvRoleValue;
+    private View intentRow;
+    private TextView tvIntentValue;
+    private ImageButton btnClose;
+    private ImageButton btnPlayAudio;
+    private ImageButton btnBackToTemplate;
+    private TextView chipExample;
+    private View exampleRow;
 
     public static ExpandedUtteranceBottomSheet newInstance(Utterance utterance) {
         ExpandedUtteranceBottomSheet fragment = new ExpandedUtteranceBottomSheet();
@@ -47,8 +66,14 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
         if (dialog != null && dialog.getWindow() != null) {
             int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9f);
             dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setGravity(Gravity.CENTER);
+            dialog.getWindow().setGravity(
+                    isExamplesShowing ? Gravity.TOP | Gravity.CENTER_HORIZONTAL : Gravity.CENTER);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            if (isExamplesShowing) {
+                WindowManager.LayoutParams p = dialog.getWindow().getAttributes();
+                p.y = dpToPx(40);
+                dialog.getWindow().setAttributes(p);
+            }
         }
     }
 
@@ -56,46 +81,160 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Utterance utterance = (Utterance) requireArguments().getSerializable(ARG_UTTERANCE);
-        if (utterance == null) return;
+        templateUtterance = (Utterance) requireArguments().getSerializable(ARG_UTTERANCE);
+        if (templateUtterance == null) return;
 
-        TextView tvType       = view.findViewById(R.id.tvUtteranceType);
-        TextView tvRomaji     = view.findViewById(R.id.tvRomaji);
-        TextView tvTranslation= view.findViewById(R.id.tvTranslation);
-        LinearLayout llSteps  = view.findViewById(R.id.llSteps);
-        TextView tvRoleValue  = view.findViewById(R.id.tvRoleValue);
-        View intentRow        = view.findViewById(R.id.intentRow);
-        TextView tvIntentValue= view.findViewById(R.id.tvIntentValue);
-        ImageButton btnClose  = view.findViewById(R.id.btnClose);
-        ImageButton btnPlayAudio = view.findViewById(R.id.btnPlayAudio);
+        tvType            = view.findViewById(R.id.tvUtteranceType);
+        tvRomaji          = view.findViewById(R.id.tvRomaji);
+        tvTranslation     = view.findViewById(R.id.tvTranslation);
+        llSteps           = view.findViewById(R.id.llSteps);
+        tvRoleValue       = view.findViewById(R.id.tvRoleValue);
+        intentRow         = view.findViewById(R.id.intentRow);
+        tvIntentValue     = view.findViewById(R.id.tvIntentValue);
+        btnClose          = view.findViewById(R.id.btnClose);
+        btnPlayAudio      = view.findViewById(R.id.btnPlayAudio);
+        btnBackToTemplate = view.findViewById(R.id.btnBackToTemplate);
+        chipExample       = view.findViewById(R.id.chipExample);
+        exampleRow        = view.findViewById(R.id.exampleRow);
 
+        showTemplateContent(templateUtterance);
+
+        btnClose.setOnClickListener(v -> dismiss());
+        btnPlayAudio.setOnClickListener(v -> { /* TODO: аудио */ });
+
+        // Назад: вернуть шаблон и переоткрыть шит с примерами
+        btnBackToTemplate.setOnClickListener(v -> {
+            isLuMode = false;
+            showTemplateContent(templateUtterance);
+            openExamples();
+        });
+
+        if ("TEMPLATE".equals(templateUtterance.getType())
+                && templateUtterance.getExamples() != null
+                && !templateUtterance.getExamples().isEmpty()) {
+            chipExample.setOnClickListener(v -> openExamples());
+        }
+
+        // Пользователь выбрал ЛЕ → шит уже сворачивается, карточка идёт в центр
+        getParentFragmentManager().setFragmentResultListener(
+                ExamplesBottomSheet.RESULT_LU_CLICKED, getViewLifecycleOwner(),
+                (key, result) -> {
+                    isLuMode = true;          // до прихода RESULT_SHEET_DISMISSED
+                    isExamplesShowing = false;
+                    String luId     = result.getString(ExamplesBottomSheet.KEY_LU_ID);
+                    String luRomaji = result.getString(ExamplesBottomSheet.KEY_LU_ROMAJI);
+                    returnToCenter();
+                    enterLuMode(luId, luRomaji);
+                });
+
+        // Шит закрыт пользователем вручную (не кликом по ЛЕ)
+        getParentFragmentManager().setFragmentResultListener(
+                ExamplesBottomSheet.RESULT_SHEET_DISMISSED, getViewLifecycleOwner(),
+                (key, result) -> {
+                    isExamplesShowing = false;
+                    if (!isLuMode) returnToCenter();
+                });
+    }
+
+    // ── Контент шаблона ───────────────────────────────────────────────────────
+
+    private void showTemplateContent(Utterance utterance) {
         tvType.setText(typeToRussian(utterance.getType()));
         tvRomaji.setText(utterance.getSurfaceRomaji() != null ? utterance.getSurfaceRomaji() : "");
         tvTranslation.setText(utterance.getTranslation() != null ? utterance.getTranslation() : "");
 
-        // Шаги
-        List<String> steps = utterance.getStepDisplayNames();
-        if (steps != null && !steps.isEmpty()) {
-            llSteps.setVisibility(View.VISIBLE);
-            for (String step : steps) {
-                llSteps.addView(makeTagView(step));
-            }
-        } else {
-            llSteps.setVisibility(View.GONE);
-        }
-
-        // Роль
+        refreshSteps(utterance.getStepDisplayNames());
         tvRoleValue.setText(joinOrDash(utterance.getRoleDisplayNames()));
 
-        // Намерение — скрыть для типа "Слово"
         if ("LEXICAL_UNIT".equals(utterance.getType())) {
             intentRow.setVisibility(View.GONE);
         } else {
+            intentRow.setVisibility(View.VISIBLE);
             tvIntentValue.setText(joinOrDash(utterance.getCommunicativeIntentNames()));
         }
 
-        btnClose.setOnClickListener(v -> dismiss());
-        btnPlayAudio.setOnClickListener(v -> { /* TODO: аудио */ });
+        btnBackToTemplate.setVisibility(View.GONE);
+
+        boolean hasExamples = "TEMPLATE".equals(utterance.getType())
+                && utterance.getExamples() != null
+                && !utterance.getExamples().isEmpty();
+        if (exampleRow != null)
+            exampleRow.setVisibility(hasExamples ? View.VISIBLE : View.GONE);
+    }
+
+    // ── Режим ЛЕ ─────────────────────────────────────────────────────────────
+
+    private void enterLuMode(String luId, String luRomaji) {
+        Utterance lu = findLu(luId);
+
+        tvType.setText(typeToRussian("LEXICAL_UNIT"));
+        tvRomaji.setText(luRomaji != null ? luRomaji : "");
+        tvTranslation.setText(lu != null && lu.getTranslation() != null
+                ? lu.getTranslation() : "");
+
+        tvRoleValue.setText(joinOrDash(lu != null ? lu.getRoleDisplayNames() : null));
+        intentRow.setVisibility(View.GONE);
+        refreshSteps(lu != null ? lu.getStepDisplayNames() : null);
+
+        btnBackToTemplate.setVisibility(View.VISIBLE);
+        if (exampleRow != null) exampleRow.setVisibility(View.GONE);
+    }
+
+    private Utterance findLu(String luId) {
+        for (Utterance u : LexicalViewActivity.allUtterances) {
+            if (luId != null && luId.equals(u.getId())) return u;
+        }
+        return null;
+    }
+
+    // ── Примеры ───────────────────────────────────────────────────────────────
+
+    private void openExamples() {
+        isExamplesShowing = true;
+        moveToTop();
+        ArrayList<Utterance.ExampleEntry> examples =
+                new ArrayList<>(templateUtterance.getExamples());
+        ExamplesBottomSheet sheet = ExamplesBottomSheet.newInstance(
+                templateUtterance.getSurfaceRomaji(), examples);
+        sheet.show(requireActivity().getSupportFragmentManager(), "examples");
+    }
+
+    // ── Позиционирование ──────────────────────────────────────────────────────
+
+    private void moveToTop() {
+        Dialog dialog = getDialog();
+        if (dialog != null && dialog.getWindow() != null) {
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9f);
+            dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+            WindowManager.LayoutParams p = dialog.getWindow().getAttributes();
+            p.y = dpToPx(40);
+            dialog.getWindow().setAttributes(p);
+        }
+    }
+
+    private void returnToCenter() {
+        Dialog dialog = getDialog();
+        if (dialog != null && dialog.getWindow() != null) {
+            int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9f);
+            dialog.getWindow().setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setGravity(Gravity.CENTER);
+            WindowManager.LayoutParams p = dialog.getWindow().getAttributes();
+            p.y = 0;
+            dialog.getWindow().setAttributes(p);
+        }
+    }
+
+    // ── Вспомогательные ───────────────────────────────────────────────────────
+
+    private void refreshSteps(List<String> steps) {
+        llSteps.removeAllViews();
+        if (steps != null && !steps.isEmpty()) {
+            llSteps.setVisibility(View.VISIBLE);
+            for (String step : steps) llSteps.addView(makeTagView(step));
+        } else {
+            llSteps.setVisibility(View.GONE);
+        }
     }
 
     private TextView makeTagView(String text) {
@@ -106,11 +245,8 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
         tv.setIncludeFontPadding(false);
         tv.setGravity(Gravity.CENTER);
         tv.setBackground(requireContext().getDrawable(R.drawable.bg_step_tag_purple));
-
         int ph = dpToPx(10);
-        int pv = dpToPx(0);
-        tv.setPadding(ph, pv, ph, pv);
-
+        tv.setPadding(ph, 0, ph, 0);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dpToPx(20));
         lp.bottomMargin = dpToPx(4);
@@ -119,8 +255,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
     }
 
     private int dpToPx(int dp) {
-        float density = getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
     private String typeToRussian(String type) {

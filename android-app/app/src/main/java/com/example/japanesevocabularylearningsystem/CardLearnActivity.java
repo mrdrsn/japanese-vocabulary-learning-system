@@ -17,8 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
-import com.example.japanesevocabularylearningsystem.model.CommunicativeIntent;
-import com.example.japanesevocabularylearningsystem.model.Role;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 
 import java.util.ArrayDeque;
@@ -26,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CardLearnActivity extends AppCompatActivity {
+
+    // LexicalViewActivity устанавливает это поле перед запуском
+    public static List<Utterance> pendingUtterances = null;
 
     private static ArrayList<String> savedQueue = null;
     private static int savedLearnedCount = 0;
@@ -52,29 +53,26 @@ public class CardLearnActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_learn);
 
-        btnBack       = findViewById(R.id.btnBack);
-        btnCheck      = findViewById(R.id.btnCheck);
-        btnCross      = findViewById(R.id.btnCross);
+        btnBack        = findViewById(R.id.btnBack);
+        btnCheck       = findViewById(R.id.btnCheck);
+        btnCross       = findViewById(R.id.btnCross);
         tvScenarioName = findViewById(R.id.tvScenarioName);
         tvCardQuantity = findViewById(R.id.tvCardQuantity);
-        progressBar   = findViewById(R.id.progressBar);
-        frontCard     = findViewById(R.id.frontCard);
-        backCard      = findViewById(R.id.backCard);
-        tvRomaji      = findViewById(R.id.tvRomaji);
-        tvTranslation = findViewById(R.id.tvTranslation);
-        tvRoleValue   = findViewById(R.id.tvRoleValue);
-        tvIntentValue = findViewById(R.id.tvIntentValue);
-        cardContainer = findViewById(R.id.cardContainer);
+        progressBar    = findViewById(R.id.progressBar);
+        frontCard      = findViewById(R.id.frontCard);
+        backCard       = findViewById(R.id.backCard);
+        tvRomaji       = findViewById(R.id.tvRomaji);
+        tvTranslation  = findViewById(R.id.tvTranslation);
+        tvRoleValue    = findViewById(R.id.tvRoleValue);
+        tvIntentValue  = findViewById(R.id.tvIntentValue);
+        cardContainer  = findViewById(R.id.cardContainer);
 
         receivedStepIds = getIntent().getStringArrayListExtra("stepIds");
-        ArrayList<String> utteranceIds = getIntent().getStringArrayListExtra("utteranceIds");
 
-        if (utteranceIds != null && !utteranceIds.isEmpty()) {
-            activeUtterances = new ArrayList<>();
-            for (String id : utteranceIds) {
-                Utterance u = MockDataProvider.getUtteranceById(id);
-                if (u != null) activeUtterances.add(u);
-            }
+        // Берём данные из LexicalViewActivity (уже отфильтрованные по шагам)
+        if (pendingUtterances != null) {
+            activeUtterances = new ArrayList<>(pendingUtterances);
+            pendingUtterances = null;
         } else {
             activeUtterances = new ArrayList<>(MockDataProvider.getConvenienceStoreUtterances());
         }
@@ -82,6 +80,7 @@ public class CardLearnActivity extends AppCompatActivity {
         totalCards = activeUtterances.size();
         progressBar.setMax(totalCards);
 
+        // Восстанавливаем сессию если те же шаги выбраны
         if (savedQueue != null && listsEqual(receivedStepIds, savedStepIdsCache)) {
             cardQueue    = new ArrayDeque<>(savedQueue);
             learnedCount = savedLearnedCount;
@@ -98,14 +97,12 @@ public class CardLearnActivity extends AppCompatActivity {
         updateProgress();
         showCurrentCard();
 
-        // нажатие на карточку: лицо → изнанка, изнанка → лицо
         cardContainer.setOnClickListener(v -> {
             if (isAnimating) return;
             if (isShowingFront) flipToBack();
             else flipToFront();
         });
 
-        // ✓ — знаю: карточка улетает вправо, следующая приходит слева
         btnCheck.setOnClickListener(v -> {
             if (isAnimating || cardQueue.isEmpty()) return;
             isAnimating = true;
@@ -119,19 +116,18 @@ public class CardLearnActivity extends AppCompatActivity {
                 } else {
                     updateProgress();
                     showCurrentCard();
-                    slideCardIn(false); // входит слева
+                    slideCardIn(false);
                 }
             });
         });
 
-        // ✗ — не знаю: карточка улетает влево, следующая приходит справа
         btnCross.setOnClickListener(v -> {
             if (isAnimating || cardQueue.isEmpty()) return;
             isAnimating = true;
             swipeCardOut(false, () -> {
-                cardQueue.add(cardQueue.poll()); // отправить в конец
+                cardQueue.add(cardQueue.poll());
                 showCurrentCard();
-                slideCardIn(true); // входит справа
+                slideCardIn(true);
             });
         });
 
@@ -146,6 +142,48 @@ public class CardLearnActivity extends AppCompatActivity {
     private void goBack() {
         saveState();
         finish();
+    }
+
+    // ── Отображение карточки ─────────────────────────────────────────────────
+
+    private void showCurrentCard() {
+        if (cardQueue.isEmpty()) return;
+        Utterance utterance = findById(cardQueue.peek());
+        if (utterance == null) return;
+
+        tvRomaji.setText(utterance.getSurfaceRomaji() != null ? utterance.getSurfaceRomaji() : "");
+        tvTranslation.setText(utterance.getTranslation() != null ? utterance.getTranslation() : "");
+
+        List<String> roles = utterance.getRoleDisplayNames();
+        tvRoleValue.setText(roles != null && !roles.isEmpty()
+                ? String.join(", ", roles) : "—");
+
+        List<String> intents = utterance.getCommunicativeIntentNames();
+        tvIntentValue.setText(intents != null && !intents.isEmpty()
+                ? String.join(", ", intents) : "—");
+
+        isShowingFront = true;
+        frontCard.setVisibility(View.VISIBLE);
+        frontCard.setRotationY(0f);
+        backCard.setVisibility(View.GONE);
+        backCard.setRotationY(0f);
+    }
+
+    private Utterance findById(String id) {
+        for (Utterance u : activeUtterances) {
+            if (id.equals(u.getId())) return u;
+        }
+        return null;
+    }
+
+    private void updateProgress() {
+        ObjectAnimator progressAnimator = ObjectAnimator.ofInt(
+                progressBar, "progress", progressBar.getProgress(), learnedCount);
+        progressAnimator.setDuration(400);
+        progressAnimator.setInterpolator(new DecelerateInterpolator());
+        progressAnimator.start();
+
+        tvCardQuantity.setText(learnedCount + "/" + totalCards + " карточек изучено");
     }
 
     // ── Переворот карточки ───────────────────────────────────────────────────
@@ -170,9 +208,7 @@ public class CardLearnActivity extends AppCompatActivity {
                 in.setInterpolator(new DecelerateInterpolator());
                 in.addListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
-                        isAnimating = false;
-                    }
+                    public void onAnimationEnd(Animator animation) { isAnimating = false; }
                 });
                 in.start();
             }
@@ -201,9 +237,7 @@ public class CardLearnActivity extends AppCompatActivity {
                 in.setInterpolator(new DecelerateInterpolator());
                 in.addListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
-                        isAnimating = false;
-                    }
+                    public void onAnimationEnd(Animator animation) { isAnimating = false; }
                 });
                 in.start();
             }
@@ -212,7 +246,7 @@ public class CardLearnActivity extends AppCompatActivity {
         isShowingFront = true;
     }
 
-    // ── Swipe-анимации (Quizlet-стиль) ───────────────────────────────────────
+    // ── Swipe-анимации ───────────────────────────────────────────────────────
 
     private void swipeCardOut(boolean toRight, Runnable onComplete) {
         float screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -241,46 +275,9 @@ public class CardLearnActivity extends AppCompatActivity {
         slide.setInterpolator(new DecelerateInterpolator());
         slide.addListener(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationEnd(Animator animation) {
-                isAnimating = false;
-            }
+            public void onAnimationEnd(Animator animation) { isAnimating = false; }
         });
         slide.start();
-    }
-
-    // ── Отображение карточки ─────────────────────────────────────────────────
-
-    private void showCurrentCard() {
-        if (cardQueue.isEmpty()) return;
-        Utterance utterance = MockDataProvider.getUtteranceById(cardQueue.peek());
-        if (utterance == null) return;
-
-        tvRomaji.setText(utterance.getSurfaceRomaji());
-        tvTranslation.setText(utterance.getTranslation());
-
-        Role role = MockDataProvider.getRoleById(utterance.getRoleId());
-        CommunicativeIntent intent = MockDataProvider.getIntentById(utterance.getCommunicativeIntentId());
-
-        tvRoleValue.setText(role != null ? role.getName() : "—");
-        tvIntentValue.setText(intent != null ? intent.getName() : "—");
-
-        // всегда начинаем с лицевой стороны
-        isShowingFront = true;
-        frontCard.setVisibility(View.VISIBLE);
-        frontCard.setRotationY(0f);
-        backCard.setVisibility(View.GONE);
-        backCard.setRotationY(0f);
-    }
-
-    private void updateProgress() {
-        ObjectAnimator progressAnimator = ObjectAnimator.ofInt(
-                progressBar, "progress",
-                progressBar.getProgress(), learnedCount);
-        progressAnimator.setDuration(400);
-        progressAnimator.setInterpolator(new DecelerateInterpolator());
-        progressAnimator.start();
-
-        tvCardQuantity.setText(learnedCount + "/" + totalCards + " карточек изучено");
     }
 
     // ── Сохранение / восстановление прогресса ────────────────────────────────

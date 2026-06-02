@@ -13,12 +13,23 @@
         android:paddingEnd="24dp"
         android:paddingBottom="24dp">
 
-        <!-- Строка 1: тип + кнопки -->
+        <!-- Строка 1: кнопка назад (LU-режим) + тип + кнопки -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnBackToTemplate"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="6dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Назад"
+                android:padding="3dp"
+                android:src="@drawable/ic_back_arrow"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tvUtteranceType"
@@ -32,12 +43,12 @@
                 android:paddingEnd="10dp"
                 android:text="Слово"
                 android:textColor="#4A4A4A"
-                android:textSize="12sp" />
+                android:textSize="12sp"/>
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"/>
 
             <ImageButton
                 android:id="@+id/btnPlayAudio"
@@ -48,8 +59,8 @@
                 android:padding="4dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_speaker"
-                app:tint="@null"
-                xmlns:app="http://schemas.android.com/apk/res-auto"/>
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                app:tint="@null"/>
 
             <ImageButton
                 android:id="@+id/btnClose"
@@ -61,8 +72,8 @@
                 android:padding="4dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_expand"
-                app:tint="@null"
-                xmlns:app="http://schemas.android.com/apk/res-auto"/>
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                app:tint="@null"/>
 
         </LinearLayout>
 
@@ -74,10 +85,9 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/sfprodisplay_medium"
             android:includeFontPadding="false"
-            android:text=""
             android:textColor="#000000"
             android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <!-- Перевод -->
         <TextView
@@ -87,9 +97,8 @@
             android:layout_marginTop="6dp"
             android:fontFamily="@font/sfprodisplay_regular"
             android:includeFontPadding="false"
-            android:text=""
             android:textColor="#1A1A1A"
-            android:textSize="18sp" />
+            android:textSize="18sp"/>
 
         <!-- Роль -->
         <LinearLayout
@@ -110,7 +119,7 @@
                 android:paddingEnd="10dp"
                 android:text="Роль"
                 android:textColor="#4A4A4A"
-                android:textSize="12sp" />
+                android:textSize="12sp"/>
 
             <TextView
                 android:id="@+id/tvRoleValue"
@@ -120,7 +129,7 @@
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:text="—"
                 android:textColor="#4A4A4A"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
 
         </LinearLayout>
 
@@ -144,7 +153,7 @@
                 android:paddingEnd="10dp"
                 android:text="Намерение"
                 android:textColor="#4A4A4A"
-                android:textSize="12sp" />
+                android:textSize="12sp"/>
 
             <TextView
                 android:id="@+id/tvIntentValue"
@@ -155,39 +164,43 @@
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:text="—"
                 android:textColor="#4A4A4A"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
 
         </LinearLayout>
 
-        <!-- Пример -->
+        <!-- Пример (кнопка, только для шаблонов) -->
         <LinearLayout
+            android:id="@+id/exampleRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/chipExample"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
-                android:background="@drawable/bg_info_tag_blue"
+                android:clickable="true"
+                android:focusable="true"
                 android:fontFamily="@font/sfprodisplay_regular"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="Пример"
-                android:textColor="#4A4A4A"
-                android:textSize="12sp" />
+                android:textStyle="bold"
+                android:textColor="#1F53FF"
+                android:textSize="12sp"/>
 
         </LinearLayout>
 
-        <!-- Шаги — в самом низу, растягивают карточку -->
+        <!-- Шаги — в самом низу -->
         <LinearLayout
             android:id="@+id/llSteps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:orientation="vertical" />
+            android:orientation="vertical"/>
 
     </LinearLayout>
 </ScrollView>

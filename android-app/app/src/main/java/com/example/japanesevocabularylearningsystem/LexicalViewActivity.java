@@ -26,6 +26,9 @@ import retrofit2.Response;
 
 public class LexicalViewActivity extends AppCompatActivity {
 
+    // Доступен из ExpandedUtteranceBottomSheet для поиска ЛЕ
+    public static final List<Utterance> allUtterances = new ArrayList<>();
+
     private UtteranceAdapter adapter;
     private final List<Utterance> utteranceList = new ArrayList<>();
     private ProgressBar progressBar;
@@ -62,9 +65,11 @@ public class LexicalViewActivity extends AppCompatActivity {
                         if (response.isSuccessful() && response.body() != null
                                 && response.body().items != null) {
                             utteranceList.clear();
+                            allUtterances.clear();
                             for (LexicalItemDto dto : response.body().items) {
                                 utteranceList.add(toModel(dto));
                             }
+                            allUtterances.addAll(utteranceList);
                             adapter.notifyDataSetChanged();
                         } else {
                             fallbackToMock();
@@ -89,12 +94,25 @@ public class LexicalViewActivity extends AppCompatActivity {
         u.setRoleDisplayNames(dto.roleDisplayNames);
         u.setCommunicativeIntentNames(dto.communicativeIntentNames);
         u.setAudioUrl(dto.audioUrl);
+        if (dto.examples != null) {
+            List<Utterance.ExampleEntry> entries = new ArrayList<>();
+            for (LexicalItemDto.ExampleEntryDto e : dto.examples) {
+                Utterance.ExampleEntry ex = new Utterance.ExampleEntry(
+                        e.luId, e.luRomaji, e.filledRomaji, e.luTranslation);
+                ex.luId2 = e.luId2;
+                ex.luRomaji2 = e.luRomaji2;
+                entries.add(ex);
+            }
+            u.setExamples(entries);
+        }
         return u;
     }
 
     private void fallbackToMock() {
         utteranceList.clear();
         utteranceList.addAll(MockDataProvider.getConvenienceStoreUtterances());
+        allUtterances.clear();
+        allUtterances.addAll(utteranceList);
         adapter.notifyDataSetChanged();
     }
 }

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.japanesevocabularylearningsystem.adapter.ScenarioStepAdapter;
-import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
 import com.example.japanesevocabularylearningsystem.model.ScenarioStep;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -25,7 +24,7 @@ import java.util.List;
 public class ScenarioStepsBottomSheet extends BottomSheetDialogFragment {
 
     private static final String ARG_SCENARIO_NAME = "scenario_name";
-    private static final String ARG_SELECTED_IDS = "selected_ids";
+    private static final String ARG_STEPS = "steps";
 
     public interface OnStepsAppliedListener {
         void onStepsApplied(List<String> selectedStepIds);
@@ -33,15 +32,12 @@ public class ScenarioStepsBottomSheet extends BottomSheetDialogFragment {
 
     private OnStepsAppliedListener listener;
 
-    // selectedIds = null означает "все выбраны" (первый запуск)
     public static ScenarioStepsBottomSheet newInstance(String scenarioName,
-                                                       @Nullable List<String> selectedIds) {
+                                                       ArrayList<ScenarioStep> steps) {
         ScenarioStepsBottomSheet sheet = new ScenarioStepsBottomSheet();
         Bundle args = new Bundle();
         args.putString(ARG_SCENARIO_NAME, scenarioName);
-        if (selectedIds != null) {
-            args.putStringArrayList(ARG_SELECTED_IDS, new ArrayList<>(selectedIds));
-        }
+        args.putSerializable(ARG_STEPS, steps);
         sheet.setArguments(args);
         return sheet;
     }
@@ -58,24 +54,21 @@ public class ScenarioStepsBottomSheet extends BottomSheetDialogFragment {
         return inflater.inflate(R.layout.fragment_scenario_steps_bottom_sheet, container, false);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Bundle args = getArguments();
-        String scenarioName = args != null ? args.getString(ARG_SCENARIO_NAME, "Сценарий") : "Сценарий";
-        ArrayList<String> selectedIds = args != null ? args.getStringArrayList(ARG_SELECTED_IDS) : null;
+        Bundle args = requireArguments();
+        String scenarioName = args.getString(ARG_SCENARIO_NAME, "Сценарий");
+        List<ScenarioStep> steps = (List<ScenarioStep>) args.getSerializable(ARG_STEPS);
+        if (steps == null) steps = new ArrayList<>();
 
         TextView tvName = view.findViewById(R.id.tvScenarioName);
         tvName.setText(scenarioName);
 
-        // Если selectedIds == null — первый запуск, все выбраны
-        // Иначе — восстанавливаем сохранённое состояние
-        List<ScenarioStep> stepsCopy = deepCopyWithState(
-                MockDataProvider.getConvenienceStoreSteps(), selectedIds);
-
         RecyclerView rvSteps = view.findViewById(R.id.rvSteps);
-        ScenarioStepAdapter adapter = new ScenarioStepAdapter(stepsCopy);
+        ScenarioStepAdapter adapter = new ScenarioStepAdapter(steps);
         rvSteps.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvSteps.addItemDecoration(new SpaceItemDecoration(20));
         rvSteps.setAdapter(adapter);
@@ -106,16 +99,5 @@ public class ScenarioStepsBottomSheet extends BottomSheetDialogFragment {
                 behavior.setSkipCollapsed(true);
             }
         }
-    }
-
-    // selectedIds == null → все выбраны; иначе — только те, чей id в списке
-    private List<ScenarioStep> deepCopyWithState(List<ScenarioStep> original,
-                                                 @Nullable List<String> selectedIds) {
-        List<ScenarioStep> copy = new ArrayList<>();
-        for (ScenarioStep step : original) {
-            boolean selected = (selectedIds == null) || selectedIds.contains(step.getId());
-            copy.add(new ScenarioStep(step.getId(), step.getName(), selected));
-        }
-        return copy;
     }
 }
