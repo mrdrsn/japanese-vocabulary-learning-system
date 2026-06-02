@@ -29,5 +29,5 @@ public class Utterance {
     public void setRoles(List<Role> roles) { this.roles = roles; }
     public List<LexicalUnit> getLexicalUnits() { return lexicalUnits; }
     public CommunicativeIntent getCommunicativeIntent() { return communicativeIntent; }
-    public String getAudioUrl() { return "/audio/utterances/" + id; }
+    public String getAudioUrl() { return "/audio/utterances/" + id + ".mp3"; }
 }

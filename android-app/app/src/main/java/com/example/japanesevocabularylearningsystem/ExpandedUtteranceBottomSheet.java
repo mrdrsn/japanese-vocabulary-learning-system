@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.japanesevocabularylearningsystem.model.Utterance;
+import com.example.japanesevocabularylearningsystem.network.ApiClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
     private ImageButton btnBackToTemplate;
     private TextView chipExample;
     private View exampleRow;
+    private String currentAudioUrl;
 
     public static ExpandedUtteranceBottomSheet newInstance(Utterance utterance) {
         ExpandedUtteranceBottomSheet fragment = new ExpandedUtteranceBottomSheet();
@@ -100,7 +102,8 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
         showTemplateContent(templateUtterance);
 
         btnClose.setOnClickListener(v -> dismiss());
-        btnPlayAudio.setOnClickListener(v -> { /* TODO: аудио */ });
+        btnPlayAudio.setOnClickListener(v ->
+                AudioPlayer.play(ApiClient.fullAudioUrl(currentAudioUrl)));
 
         // Назад: вернуть шаблон и переоткрыть шит с примерами
         btnBackToTemplate.setOnClickListener(v -> {
@@ -140,6 +143,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
     private void showTemplateContent(Utterance utterance) {
         tvType.setText(typeToRussian(utterance.getType()));
         tvRomaji.setText(utterance.getSurfaceRomaji() != null ? utterance.getSurfaceRomaji() : "");
+        currentAudioUrl = utterance.getAudioUrl();
         tvTranslation.setText(utterance.getTranslation() != null ? utterance.getTranslation() : "");
 
         refreshSteps(utterance.getStepDisplayNames());
@@ -164,6 +168,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
 
     private void enterLuMode(String luId, String luRomaji) {
         Utterance lu = findLu(luId);
+        currentAudioUrl = lu != null ? lu.getAudioUrl() : null;
 
         tvType.setText(typeToRussian("LEXICAL_UNIT"));
         tvRomaji.setText(luRomaji != null ? luRomaji : "");

@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.japanesevocabularylearningsystem.ExpandedUtteranceBottomSheet;
 import com.example.japanesevocabularylearningsystem.R;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
+import com.example.japanesevocabularylearningsystem.AudioPlayer;
+import com.example.japanesevocabularylearningsystem.network.ApiClient;
 
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class UtteranceAdapter extends RecyclerView.Adapter<UtteranceAdapter.Utte
         });
 
         holder.btnPlayAudio.setOnClickListener(v -> {
-            // TODO: воспроизвести аудио
+            AudioPlayer.play(ApiClient.fullAudioUrl(utterance.getAudioUrl()));
         });
     }
 

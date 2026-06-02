@@ -20,4 +20,8 @@ public class ApiClient {
         }
         return instance;
     }
+    public static String fullAudioUrl(String audioPath) {
+        if (audioPath == null || audioPath.isEmpty()) return null;
+        return BASE_URL.substring(0, BASE_URL.length() - 1) + audioPath;
+    }
 }

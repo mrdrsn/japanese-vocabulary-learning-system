@@ -13,4 +13,5 @@ public class LexicalUnit {
     public String getId() { return id; }
     public String getRomaji() { return romaji; }
     public String getTranslation() { return translation; }
+    public String getAudioUrl() { return "/audio/lexical_units/" + id + ".mp3"; }
 }
