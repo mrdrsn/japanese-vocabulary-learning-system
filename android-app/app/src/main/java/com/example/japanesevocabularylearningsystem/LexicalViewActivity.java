@@ -12,13 +12,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.japanesevocabularylearningsystem.adapter.UtteranceAdapter;
 import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
+import com.example.japanesevocabularylearningsystem.model.ScenarioStep;
 import com.example.japanesevocabularylearningsystem.model.Utterance;
 import com.example.japanesevocabularylearningsystem.network.ApiClient;
 import com.example.japanesevocabularylearningsystem.network.dto.FullLexiconDto;
 import com.example.japanesevocabularylearningsystem.network.dto.LexicalItemDto;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,19 +29,21 @@ import retrofit2.Response;
 
 public class LexicalViewActivity extends AppCompatActivity {
 
-    // Доступен из ExpandedUtteranceBottomSheet для поиска ЛЕ
     public static final List<Utterance> allUtterances = new ArrayList<>();
 
     private UtteranceAdapter adapter;
     private final List<Utterance> utteranceList = new ArrayList<>();
     private ProgressBar progressBar;
+    private static List<String> currentSelectedStepIds = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lexical_view);
 
-        ImageView btnBack = findViewById(R.id.btnBack);
+        ImageView btnBack      = findViewById(R.id.btnBack);
+        ImageView btnSettings  = findViewById(R.id.btnSettings);
+        ImageView btnCardStart = findViewById(R.id.btnCardStart);
         RecyclerView rvUtterances = findViewById(R.id.rvUtterances);
         progressBar = findViewById(R.id.progressBar);
 
@@ -49,6 +54,37 @@ public class LexicalViewActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> {
             startActivity(new Intent(this, ModeChooseActivity.class));
             finish();
+        });
+
+        btnSettings.setOnClickListener(v -> {
+            ArrayList<ScenarioStep> steps = new ArrayList<>();
+            for (ScenarioStep step : MockDataProvider.getConvenienceStoreSteps()) {
+                boolean selected = currentSelectedStepIds == null
+                        || currentSelectedStepIds.contains(step.getId());
+                steps.add(new ScenarioStep(step.getId(), step.getName(), selected));
+            }
+            ScenarioStepsBottomSheet sheet =
+                    ScenarioStepsBottomSheet.newInstance("Convenience Store", steps);
+            sheet.setOnStepsAppliedListener(selectedStepIds -> {
+                currentSelectedStepIds = new ArrayList<>(selectedStepIds);
+                adapter.updateData(filterBySteps(selectedStepIds));
+                CardLearnActivity.clearSavedState();
+            });
+            sheet.show(getSupportFragmentManager(), "steps_sheet");
+        });
+
+        btnCardStart.setOnClickListener(v -> {
+            List<Utterance> cardsToStudy = currentSelectedStepIds == null
+                    ? getStudyableItems()
+                    : filterBySteps(currentSelectedStepIds);
+
+            CardLearnActivity.pendingUtterances = cardsToStudy;  // ← передаём актуальные данные
+
+            Intent intent = new Intent(this, CardLearnActivity.class);
+            if (currentSelectedStepIds != null) {
+                intent.putStringArrayListExtra("stepIds", new ArrayList<>(currentSelectedStepIds));
+            }
+            startActivity(intent);
         });
 
         loadLexicon();
@@ -70,7 +106,11 @@ public class LexicalViewActivity extends AppCompatActivity {
                                 utteranceList.add(toModel(dto));
                             }
                             allUtterances.addAll(utteranceList);
-                            adapter.notifyDataSetChanged();
+                            if (currentSelectedStepIds != null) {
+                                adapter.updateData(filterBySteps(currentSelectedStepIds));
+                            } else {
+                                adapter.notifyDataSetChanged();
+                            }
                         } else {
                             fallbackToMock();
                         }
@@ -113,6 +153,42 @@ public class LexicalViewActivity extends AppCompatActivity {
         utteranceList.addAll(MockDataProvider.getConvenienceStoreUtterances());
         allUtterances.clear();
         allUtterances.addAll(utteranceList);
-        adapter.notifyDataSetChanged();
+        if (currentSelectedStepIds != null) {
+            adapter.updateData(filterBySteps(currentSelectedStepIds));
+        } else {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    // Только UTTERANCE и TEMPLATE для карточного режима
+    private List<Utterance> getStudyableItems() {
+        List<Utterance> result = new ArrayList<>();
+        for (Utterance u : allUtterances) {
+            if (!"LEXICAL_UNIT".equals(u.getType())) result.add(u);
+        }
+        return result;
+    }
+
+    private List<Utterance> filterBySteps(List<String> selectedStepIds) {
+        Set<String> selectedNames = new HashSet<>();
+        for (ScenarioStep step : MockDataProvider.getConvenienceStoreSteps()) {
+            if (selectedStepIds.contains(step.getId())) {
+                selectedNames.add(step.getName());
+            }
+        }
+
+        List<Utterance> result = new ArrayList<>();
+        for (Utterance u : allUtterances) {          // ← было utteranceList
+            if ("LEXICAL_UNIT".equals(u.getType())) continue;
+            if (u.getStepDisplayNames() != null) {
+                for (String name : u.getStepDisplayNames()) {
+                    if (selectedNames.contains(name)) {
+                        result.add(u);
+                        break;
+                    }
+                }
+            }
+        }
+        return result.isEmpty() ? getStudyableItems() : result;
     }
 }

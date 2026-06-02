@@ -64,6 +64,11 @@ public class ScenarioService {
                             luItem.addStep(stepName);
                             luItem.addRoles(roles);
                             luItem.addIntent(intent);
+
+                            String luR = lu.getRomaji() != null ? lu.getRomaji() : "";
+                            String luT = lu.getTranslation() != null ? lu.getTranslation() : "";
+                            item.addExample(new LexicalItemResponse.ExampleEntry(
+                                    lu.getId(), luR, luR, luT));
                         }
                     }
                 }

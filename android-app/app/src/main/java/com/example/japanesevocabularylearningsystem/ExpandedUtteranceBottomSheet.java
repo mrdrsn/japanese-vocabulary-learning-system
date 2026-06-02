@@ -109,8 +109,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
             openExamples();
         });
 
-        if ("TEMPLATE".equals(templateUtterance.getType())
-                && templateUtterance.getExamples() != null
+        if (templateUtterance.getExamples() != null
                 && !templateUtterance.getExamples().isEmpty()) {
             chipExample.setOnClickListener(v -> openExamples());
         }
@@ -155,8 +154,7 @@ public class ExpandedUtteranceBottomSheet extends DialogFragment {
 
         btnBackToTemplate.setVisibility(View.GONE);
 
-        boolean hasExamples = "TEMPLATE".equals(utterance.getType())
-                && utterance.getExamples() != null
+        boolean hasExamples = utterance.getExamples() != null
                 && !utterance.getExamples().isEmpty();
         if (exampleRow != null)
             exampleRow.setVisibility(hasExamples ? View.VISIBLE : View.GONE);
