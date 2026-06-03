@@ -1,24 +1,29 @@
 package com.example.japanesevocabularylearningsystem.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ExerciseTypeB {
-
-    private String utteranceId;
-    private String roleId;
+public class ExerciseTypeB implements Serializable {
+    private String instruction;
+    private String audioUrl;
+    private String roleName;
     private List<String> options;
-    private int correctOptionIndex;
+    private List<Boolean> correctFlags;
 
-    public ExerciseTypeB(String utteranceId, String roleId,
-                         List<String> options, int correctOptionIndex) {
-        this.utteranceId = utteranceId;
-        this.roleId = roleId;
+    public ExerciseTypeB() {}
+
+    public ExerciseTypeB(String instruction, String audioUrl, String roleName,
+                         List<String> options, List<Boolean> correctFlags) {
+        this.instruction = instruction;
+        this.audioUrl = audioUrl;
+        this.roleName = roleName;
         this.options = options;
-        this.correctOptionIndex = correctOptionIndex;
+        this.correctFlags = correctFlags;
     }
 
-    public String getUtteranceId() { return utteranceId; }
-    public String getRoleId() { return roleId; }
-    public List<String> getOptions() { return options; }
-    public int getCorrectOptionIndex() { return correctOptionIndex; }
+    public String getInstruction()         { return instruction; }
+    public String getAudioUrl()            { return audioUrl; }
+    public String getRoleName()            { return roleName; }
+    public List<String> getOptions()       { return options; }
+    public List<Boolean> getCorrectFlags() { return correctFlags; }
 }

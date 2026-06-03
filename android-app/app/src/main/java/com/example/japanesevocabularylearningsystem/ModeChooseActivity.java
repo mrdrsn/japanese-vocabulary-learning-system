@@ -34,7 +34,7 @@ public class ModeChooseActivity extends AppCompatActivity {
         });
 
         btnTrainingMode.setOnClickListener(v -> {
-            Intent intent = new Intent(this, TrainingActivity.class);
+            Intent intent = new Intent(this, TrainingMenuActivity.class);
             intent.putExtra(MainActivity.EXTRA_SCENARIO_ID, sid);
             intent.putExtra(MainActivity.EXTRA_SCENARIO_NAME, sname);
             startActivity(intent);

@@ -1,6 +1,7 @@
 package com.example.vocabulary_backend.controller;
 
 import com.example.vocabulary_backend.model.ExerciseTypeAResponse;
+import com.example.vocabulary_backend.model.ExerciseTypeBResponse;
 import com.example.vocabulary_backend.service.ExerciseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,5 +24,12 @@ public class ExerciseController {
             @RequestParam(defaultValue = "2") int count,
             @RequestParam(defaultValue = "R2") String roleId) {
         return exerciseService.generateTypeAExercises(id, count, roleId);
+    }
+    @GetMapping("/scenarios/{id}/exercises/type-b")
+    public List<ExerciseTypeBResponse> getTypeBExercises(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "2") int count,
+            @RequestParam(defaultValue = "auto") String roleId) {
+        return exerciseService.generateTypeBExercises(id, count, roleId);
     }
 }

@@ -2,8 +2,6 @@ package com.example.japanesevocabularylearningsystem;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,15 +12,24 @@ public class TrainingMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training_menu);
 
+        String scenarioId   = getIntent().getStringExtra(MainActivity.EXTRA_SCENARIO_ID);
+        String scenarioName = getIntent().getStringExtra(MainActivity.EXTRA_SCENARIO_NAME);
+
         findViewById(R.id.btnBack).setOnClickListener(v -> {
-            startActivity(new Intent(this, ModeChooseActivity.class));
+            Intent intent = new Intent(this, ModeChooseActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_ID, scenarioId);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_NAME, scenarioName);
+            startActivity(intent);
             finish();
         });
 
-        findViewById(R.id.btnStartTraining).setOnClickListener(v ->
-                startActivity(new Intent(this, TrainingActivity.class)));
-        // НЕ вызываем finish() — TrainingMenuActivity остаётся в back stack,
-        // чтобы btnBack во фрагментах (finish()) возвращал сюда
+        findViewById(R.id.btnStartTraining).setOnClickListener(v -> {
+            Intent intent = new Intent(this, TrainingActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_ID, scenarioId);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_NAME, scenarioName);
+            startActivity(intent);
+            // НЕ вызываем finish() — остаётся в back stack
+        });
 
         findViewById(R.id.btnViewResults).setOnClickListener(v ->
                 startActivity(new Intent(this, TrainingResultsActivity.class)));

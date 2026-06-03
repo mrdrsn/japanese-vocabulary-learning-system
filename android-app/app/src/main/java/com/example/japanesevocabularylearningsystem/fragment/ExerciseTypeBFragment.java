@@ -15,33 +15,48 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
 import com.example.japanesevocabularylearningsystem.R;
-import com.example.japanesevocabularylearningsystem.data.MockDataProvider;
 import com.example.japanesevocabularylearningsystem.model.ExerciseTypeB;
-import com.example.japanesevocabularylearningsystem.model.Role;
+import com.example.japanesevocabularylearningsystem.network.ApiClient;
+import com.example.japanesevocabularylearningsystem.AudioPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseTypeBFragment extends Fragment {
 
-    private static final int ACCENT_COLOR = 0xFF8EC3FF;
+    private static final int COLOR_ACCENT  = 0xFF8EC3FF;
+    private static final int COLOR_CORRECT = 0xFF4CAF50;
+    private static final int COLOR_WRONG   = 0xFFF44336;
+    private static final int COLOR_DEFAULT = 0xFFFFFFFF;
 
-    private static final String ARG_UTTERANCE_ID = "utteranceId";
-    private static final String ARG_ROLE_ID = "roleId";
-    private static final String ARG_OPTIONS = "options";
-    private static final String ARG_INDEX = "index";
-    private static final String ARG_TOTAL = "total";
+    private static final String ARG_INSTRUCTION   = "instruction";
+    private static final String ARG_AUDIO_URL     = "audioUrl";
+    private static final String ARG_ROLE_NAME     = "roleName";
+    private static final String ARG_OPTIONS       = "options";
+    private static final String ARG_CORRECT_FLAGS = "correctFlags";
+    private static final String ARG_INDEX         = "index";
+    private static final String ARG_TOTAL         = "total";
 
     private OnAnswerSubmittedListener listener;
     private AppCompatButton[] optionButtons;
     private AppCompatButton btnSubmit;
+    private boolean submitted = false;
+    private int selectedIndex = -1;
 
     public static ExerciseTypeBFragment newInstance(ExerciseTypeB exercise, int index, int total) {
         ExerciseTypeBFragment fragment = new ExerciseTypeBFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_UTTERANCE_ID, exercise.getUtteranceId());
-        args.putString(ARG_ROLE_ID, exercise.getRoleId());
+        args.putString(ARG_INSTRUCTION, exercise.getInstruction());
+        args.putString(ARG_AUDIO_URL, exercise.getAudioUrl());
+        args.putString(ARG_ROLE_NAME, exercise.getRoleName());
         args.putStringArrayList(ARG_OPTIONS, new ArrayList<>(exercise.getOptions()));
+        List<Boolean> flags = exercise.getCorrectFlags();
+        boolean[] flagsArr = new boolean[flags != null ? flags.size() : 0];
+        if (flags != null) {
+            for (int i = 0; i < flags.size(); i++)
+                flagsArr[i] = Boolean.TRUE.equals(flags.get(i));
+        }
+        args.putBooleanArray(ARG_CORRECT_FLAGS, flagsArr);
         args.putInt(ARG_INDEX, index);
         args.putInt(ARG_TOTAL, total);
         fragment.setArguments(args);
@@ -76,15 +91,14 @@ public class ExerciseTypeBFragment extends Fragment {
         progressBar.setProgress(index + 1);
 
         TextView tvInstruction = view.findViewById(R.id.tvInstruction);
-        tvInstruction.setText("Прослушайте и переведите фразу");
-        tvInstruction.setBackground(makePill(ACCENT_COLOR, 24));
+        tvInstruction.setText(args.getString(ARG_INSTRUCTION));
+        tvInstruction.setBackground(makePill(COLOR_ACCENT, 24));
 
-        view.findViewById(R.id.btnSpeaker).setOnClickListener(v -> {
-            // TODO: воспроизвести аудио для args.getString(ARG_UTTERANCE_ID)
-        });
+        String audioUrl = args.getString(ARG_AUDIO_URL);
+        view.findViewById(R.id.btnSpeaker).setOnClickListener(v ->
+                AudioPlayer.play(ApiClient.fullAudioUrl(audioUrl)));
 
-        Role role = MockDataProvider.getRoleById(args.getString(ARG_ROLE_ID));
-        view.<TextView>findViewById(R.id.tvRoleValue).setText(role != null ? role.getName() : "");
+        view.<TextView>findViewById(R.id.tvRoleValue).setText(args.getString(ARG_ROLE_NAME));
 
         List<String> options = args.getStringArrayList(ARG_OPTIONS);
         btnSubmit = view.findViewById(R.id.btnSubmitAnswer);
@@ -106,20 +120,52 @@ public class ExerciseTypeBFragment extends Fragment {
                 btn.setVisibility(View.GONE);
             }
         }
-        btnSubmit.setOnClickListener(v -> { if (listener != null) listener.onAnswerSubmitted(); });
+
+        btnSubmit.setOnClickListener(v -> {
+            if (!submitted) {
+                submitted = true;
+                showFeedback(args.getBooleanArray(ARG_CORRECT_FLAGS));
+                btnSubmit.setText("Продолжить");
+            } else {
+                if (listener != null) listener.onAnswerSubmitted();
+            }
+        });
     }
 
     private void selectOption(int index) {
+        if (submitted) return;
+        selectedIndex = index;
         for (int i = 0; i < optionButtons.length; i++) {
             if (i == index) {
-                optionButtons[i].setBackground(makePill(ACCENT_COLOR, 14));
+                optionButtons[i].setBackground(makePill(COLOR_ACCENT, 14));
                 optionButtons[i].setTextColor(0xFFFFFFFF);
             } else {
-                optionButtons[i].setBackground(makePill(0xFFFFFFFF, 14));
+                optionButtons[i].setBackground(makePill(COLOR_DEFAULT, 14));
                 optionButtons[i].setTextColor(0xFF1A1A1A);
             }
         }
         btnSubmit.setVisibility(View.VISIBLE);
+    }
+
+    private void showFeedback(boolean[] correctFlags) {
+        if (correctFlags == null) return;
+        boolean selectedIsCorrect = selectedIndex >= 0
+                && selectedIndex < correctFlags.length
+                && correctFlags[selectedIndex];
+        for (int i = 0; i < optionButtons.length; i++) {
+            if (optionButtons[i].getVisibility() != View.VISIBLE) continue;
+            if (i < correctFlags.length && correctFlags[i]) {
+                optionButtons[i].setBackground(makePill(COLOR_CORRECT, 14));
+                optionButtons[i].setTextColor(0xFFFFFFFF);
+            } else if (i == selectedIndex && !selectedIsCorrect) {
+                optionButtons[i].setBackground(makePill(COLOR_WRONG, 14));
+                optionButtons[i].setTextColor(0xFFFFFFFF);
+            } else {
+                optionButtons[i].setBackground(makePill(COLOR_DEFAULT, 14));
+                optionButtons[i].setTextColor(0xFF1A1A1A);
+            }
+            optionButtons[i].setClickable(false);
+        }
     }
 
     private GradientDrawable makePill(int color, int radiusDp) {

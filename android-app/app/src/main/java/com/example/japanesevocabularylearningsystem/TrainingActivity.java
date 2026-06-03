@@ -7,10 +7,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.japanesevocabularylearningsystem.fragment.ExerciseTypeAFragment;
-import com.example.japanesevocabularylearningsystem.model.ExerciseTypeA;
+import com.example.japanesevocabularylearningsystem.fragment.ExerciseTypeBFragment;
+import com.example.japanesevocabularylearningsystem.model.ExerciseTypeB;
 import com.example.japanesevocabularylearningsystem.network.ApiClient;
-import com.example.japanesevocabularylearningsystem.network.dto.ExerciseTypeADto;
+import com.example.japanesevocabularylearningsystem.network.dto.ExerciseTypeBDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ import retrofit2.Response;
 
 public class TrainingActivity extends AppCompatActivity {
 
-    private static final int TYPE_A_COUNT = 2;
+    private static final int TYPE_B_COUNT = 2;
 
     private String scenarioId;
-    private final List<ExerciseTypeA> exercises = new ArrayList<>();
+    private final List<ExerciseTypeB> exercises = new ArrayList<>();
     private int currentIndex = 0;
 
     @Override
@@ -38,13 +38,13 @@ public class TrainingActivity extends AppCompatActivity {
 
     private void loadExercises() {
         ApiClient.getInstance()
-                .getTypeAExercises(scenarioId, TYPE_A_COUNT, "auto")
-                .enqueue(new Callback<List<ExerciseTypeADto>>() {
+                .getTypeBExercises(scenarioId, TYPE_B_COUNT, "auto")
+                .enqueue(new Callback<List<ExerciseTypeBDto>>() {
                     @Override
-                    public void onResponse(Call<List<ExerciseTypeADto>> call,
-                                           Response<List<ExerciseTypeADto>> response) {
+                    public void onResponse(Call<List<ExerciseTypeBDto>> call,
+                                           Response<List<ExerciseTypeBDto>> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            for (ExerciseTypeADto dto : response.body()) {
+                            for (ExerciseTypeBDto dto : response.body()) {
                                 exercises.add(dto.toModel());
                             }
                         }
@@ -58,7 +58,7 @@ public class TrainingActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<List<ExerciseTypeADto>> call, Throwable t) {
+                    public void onFailure(Call<List<ExerciseTypeBDto>> call, Throwable t) {
                         Toast.makeText(TrainingActivity.this,
                                 "Ошибка загрузки: " + t.getMessage(), Toast.LENGTH_LONG).show();
                         finish();
@@ -77,7 +77,7 @@ public class TrainingActivity extends AppCompatActivity {
             return;
         }
 
-        ExerciseTypeAFragment f = ExerciseTypeAFragment.newInstance(
+        ExerciseTypeBFragment f = ExerciseTypeBFragment.newInstance(
                 exercises.get(currentIndex), currentIndex, exercises.size());
         f.setOnAnswerSubmittedListener(this::onAnswerSubmitted);
 

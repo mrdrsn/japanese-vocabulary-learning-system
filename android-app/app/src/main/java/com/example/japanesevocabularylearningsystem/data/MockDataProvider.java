@@ -144,14 +144,7 @@ public class MockDataProvider {
     }
 
     public static List<ExerciseTypeB> getTypeBExercises() {
-        List<ExerciseTypeB> list = new ArrayList<>();
-        list.add(new ExerciseTypeB("U6", "R2",
-                Arrays.asList("Вам разогреть это?","Где касса?","Спасибо большое.","Вам нужен пакет?"), 0));
-        list.add(new ExerciseTypeB("U1", "R2",
-                Arrays.asList("Нет, спасибо.","Дайте, пожалуйста, палочки.","Вам нужен пакет?","Пожалуйста, разогрейте."), 2));
-        list.add(new ExerciseTypeB("U5", "R1",
-                Arrays.asList("Вам нужна ложка?","Дайте, пожалуйста, палочки для еды.","Нет, спасибо.","Я расплачусь картой."), 1));
-        return list;
+        return new ArrayList<>(); // больше не используется, тип изменён
     }
 
     public static List<ExerciseTypeC> getTypeCExercises() {

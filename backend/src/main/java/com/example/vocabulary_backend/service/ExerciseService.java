@@ -4,6 +4,8 @@ import com.example.vocabulary_backend.model.ExerciseTypeAResponse;
 import com.example.vocabulary_backend.model.neo4j.*;
 import com.example.vocabulary_backend.repository.ScenarioRepository;
 import org.springframework.stereotype.Service;
+import com.example.vocabulary_backend.model.ExerciseTypeBResponse;
+import org.springframework.core.io.ClassPathResource;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,5 +135,136 @@ public class ExerciseService {
                 .orElse(null);
         if (first == null || first.getSlot().getLexicalUnits() == null) return Collections.emptyList();
         return first.getSlot().getLexicalUnits();
+    }
+    public List<ExerciseTypeBResponse> generateTypeBExercises(String scenarioId, int count, String roleId) {
+        Scenario scenario = scenarioRepository.findById(scenarioId).orElseThrow();
+
+        // Автоопределение роли персонала
+        String effectiveRoleId;
+        if ("auto".equals(roleId)) {
+            effectiveRoleId = null;
+            if (scenario.getRoles() != null) {
+                for (Role r : scenario.getRoles()) {
+                    if (r.getDisplayName() != null && !r.getDisplayName().contains("Гость")) {
+                        effectiveRoleId = r.getId();
+                        break;
+                    }
+                }
+            }
+        } else {
+            effectiveRoleId = roleId;
+        }
+        final String staffRoleId = effectiveRoleId;
+
+        // step → utterances, utterance → stepIds, все utterances сценария
+        Map<String, List<Utterance>> stepToUtterances = new LinkedHashMap<>();
+        Map<String, Set<String>> utteranceToStepIds = new HashMap<>();
+        Map<String, Utterance> allUtteranceMap = new LinkedHashMap<>();
+
+        for (SituationStep step : scenario.getSteps()) {
+            if (step.getUtterances() == null) continue;
+            stepToUtterances.put(step.getId(), step.getUtterances());
+            for (Utterance u : step.getUtterances()) {
+                allUtteranceMap.put(u.getId(), u);
+                utteranceToStepIds.computeIfAbsent(u.getId(), k -> new HashSet<>()).add(step.getId());
+            }
+        }
+
+        // Фильтр: только роль персонала. Сначала с проверкой аудио, затем без (fallback)
+        List<Utterance> candidates = filterByRoleAndAudio(allUtteranceMap, staffRoleId, true);
+        if (candidates.isEmpty()) {
+            candidates = filterByRoleAndAudio(allUtteranceMap, staffRoleId, false);
+        }
+        if (candidates.isEmpty()) return Collections.emptyList();
+
+        Collections.shuffle(candidates);
+        Random rnd = new Random();
+        List<ExerciseTypeBResponse> result = new ArrayList<>();
+        Set<String> usedIds = new HashSet<>();
+
+        for (Utterance chosen : candidates) {
+            if (result.size() >= count) break;
+            if (usedIds.contains(chosen.getId())) continue;
+            usedIds.add(chosen.getId());
+
+            String correctTranslation = chosen.getRuTranslation() != null ? chosen.getRuTranslation() : "";
+            Set<String> chosenStepIds = utteranceToStepIds.getOrDefault(
+                    chosen.getId(), Collections.emptySet());
+
+            // Варианты из того же шага (без совпадений по переводу)
+            List<Utterance> sameStepPool = new ArrayList<>();
+            Set<String> seenTranslations = new HashSet<>();
+            seenTranslations.add(correctTranslation);
+            for (String stepId : chosenStepIds) {
+                for (Utterance u : stepToUtterances.getOrDefault(stepId, Collections.emptyList())) {
+                    if (u.getId().equals(chosen.getId())) continue;
+                    String t = u.getRuTranslation() != null ? u.getRuTranslation() : "";
+                    if (seenTranslations.add(t)) sameStepPool.add(u);
+                }
+            }
+            Collections.shuffle(sameStepPool, rnd);
+
+            // Собираем 3 дистрактора
+            List<String> distractors = new ArrayList<>();
+            Set<String> usedTranslations = new HashSet<>();
+            usedTranslations.add(correctTranslation);
+
+            if (sameStepPool.size() >= 3) {
+                for (int j = 0; j < 3; j++) {
+                    String t = sameStepPool.get(j).getRuTranslation() != null
+                            ? sameStepPool.get(j).getRuTranslation() : "";
+                    distractors.add(t);
+                    usedTranslations.add(t);
+                }
+            } else {
+                for (Utterance u : sameStepPool) {
+                    String t = u.getRuTranslation() != null ? u.getRuTranslation() : "";
+                    distractors.add(t);
+                    usedTranslations.add(t);
+                }
+                List<Utterance> allList = new ArrayList<>(allUtteranceMap.values());
+                Collections.shuffle(allList, rnd);
+                for (Utterance u : allList) {
+                    if (distractors.size() >= 3) break;
+                    if (u.getId().equals(chosen.getId())) continue;
+                    String t = u.getRuTranslation() != null ? u.getRuTranslation() : "";
+                    if (usedTranslations.add(t)) distractors.add(t);
+                }
+            }
+
+            List<ExerciseTypeBResponse.OptionDto> options = new ArrayList<>();
+            options.add(new ExerciseTypeBResponse.OptionDto(correctTranslation, true));
+            for (String dt : distractors) {
+                options.add(new ExerciseTypeBResponse.OptionDto(dt, false));
+            }
+            Collections.shuffle(options, rnd);
+
+            String roleName = (chosen.getRoles() != null && !chosen.getRoles().isEmpty())
+                    ? chosen.getRoles().get(0).getDisplayName() : "";
+            String audioUrl = "/audio/utterances/" + chosen.getId() + ".mp3";
+
+            result.add(new ExerciseTypeBResponse(chosen.getId(), audioUrl,
+                    correctTranslation, roleName, options));
+        }
+        return result;
+    }
+
+    private List<Utterance> filterByRoleAndAudio(Map<String, Utterance> allUtteranceMap,
+                                                 String staffRoleId, boolean requireAudio) {
+        List<Utterance> result = new ArrayList<>();
+        for (Utterance u : allUtteranceMap.values()) {
+            if (staffRoleId != null) {
+                List<Role> roles = u.getRoles();
+                if (roles == null || roles.isEmpty()) continue;
+                if (!roles.stream().allMatch(r -> staffRoleId.equals(r.getId()))) continue;
+            }
+            if (requireAudio && !hasAudio(u.getId())) continue;
+            result.add(u);
+        }
+        return result;
+    }
+
+    private boolean hasAudio(String utteranceId) {
+        return new ClassPathResource("static/audio/utterances/" + utteranceId + ".mp3").exists();
     }
 }
