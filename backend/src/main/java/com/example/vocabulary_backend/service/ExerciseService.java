@@ -2,6 +2,7 @@ package com.example.vocabulary_backend.service;
 
 import com.example.vocabulary_backend.model.ExerciseTypeAResponse;
 import com.example.vocabulary_backend.model.ExerciseTypeCResponse;
+import com.example.vocabulary_backend.model.ExerciseTypeDResponse;
 import com.example.vocabulary_backend.model.neo4j.*;
 import com.example.vocabulary_backend.repository.ScenarioRepository;
 import org.springframework.stereotype.Service;
@@ -346,6 +347,116 @@ public class ExerciseService {
                     "/audio/utterances/" + chosen.getId() + ".mp3",
                     roleOptions,
                     translationOptions));
+        }
+        return result;
+    }
+    public List<ExerciseTypeDResponse> generateTypeDExercises(String scenarioId, int count) {
+        Scenario scenario = scenarioRepository.findById(scenarioId).orElseThrow();
+
+        // Собираем все utterances сценария с привязкой к шагам
+        Map<String, Utterance> allUtteranceMap = new LinkedHashMap<>();
+        for (SituationStep step : scenario.getSteps()) {
+            if (step.getUtterances() != null) {
+                for (Utterance u : step.getUtterances()) {
+                    allUtteranceMap.put(u.getId(), u);
+                }
+            }
+        }
+        String guestRoleId = null;
+        if (scenario.getRoles() != null) {
+            for (Role r : scenario.getRoles()) {
+                if (r.getDisplayName() != null && r.getDisplayName().contains("Гость")) {
+                    guestRoleId = r.getId();
+                    break;
+                }
+            }
+        }
+        if (guestRoleId == null) return Collections.emptyList();
+        final String finalGuestRoleId = guestRoleId;
+        // Кандидаты: utterance с ролью + коммуникативным намерением + romaji
+        // Хранится как пара [Utterance, SituationStep]
+        List<Object[]> candidates = new ArrayList<>();
+        for (SituationStep step : scenario.getSteps()) {
+            if (step.getUtterances() == null) continue;
+            for (Utterance u : step.getUtterances()) {
+                if (u.getRoles() == null || u.getRoles().isEmpty()) continue;
+                if (u.getRoles().stream().noneMatch(r -> finalGuestRoleId.equals(r.getId()))) continue;
+                if (u.getCommunicativeIntent() == null) continue;
+                if (u.getRomaji() == null || u.getRomaji().isEmpty()) continue;
+                candidates.add(new Object[]{u, step});
+            }
+        }
+        if (candidates.isEmpty()) return Collections.emptyList();
+
+        Collections.shuffle(candidates);
+        Random rnd = new Random();
+        List<ExerciseTypeDResponse> result = new ArrayList<>();
+        Set<String> usedIds = new HashSet<>();
+
+        for (Object[] pair : candidates) {
+            if (result.size() >= count) break;
+            Utterance correct = (Utterance) pair[0];
+            SituationStep step = (SituationStep) pair[1];
+
+            if (usedIds.contains(correct.getId())) continue;
+            usedIds.add(correct.getId());
+
+            Role role = correct.getRoles().stream()
+                    .filter(r -> finalGuestRoleId.equals(r.getId()))
+                    .findFirst().orElse(correct.getRoles().get(0));
+            CommunicativeIntent intent = correct.getCommunicativeIntent();
+            String correctRoleId = role.getId();
+            String correctIntentId = intent.getId();
+
+            String situationYou = (role.getDisplayName() != null ? role.getDisplayName() : role.getName())
+                    + " в " + (scenario.getDisplayName() != null ? scenario.getDisplayName() : scenario.getName());
+            String situationStep = step.getDisplayName() != null ? step.getDisplayName() : step.getName();
+            String situationIntent = intent.getDisplayName() != null ? intent.getDisplayName() : intent.getName();
+
+            // Дистракторы: из того же шага, та же роль, другое намерение, другой romaji
+            List<Utterance> distractorPool = new ArrayList<>();
+            Set<String> seenRomaji = new HashSet<>();
+            seenRomaji.add(correct.getRomaji());
+
+            for (Utterance u : step.getUtterances()) {
+                if (u.getId().equals(correct.getId())) continue;
+                if (u.getRoles() == null || u.getRoles().isEmpty()) continue;
+                if (!u.getRoles().stream().anyMatch(r -> correctRoleId.equals(r.getId()))) continue;
+                if (u.getRomaji() == null || u.getRomaji().isEmpty()) continue;
+                if (seenRomaji.contains(u.getRomaji())) continue;
+                if (u.getCommunicativeIntent() != null && correctIntentId.equals(u.getCommunicativeIntent().getId())) continue;
+                seenRomaji.add(u.getRomaji());
+                distractorPool.add(u);
+            }
+            Collections.shuffle(distractorPool, rnd);
+
+            // Если не хватает — добираем из всего сценария (та же роль, другое намерение)
+            if (distractorPool.size() < 3) {
+                List<Utterance> allList = new ArrayList<>(allUtteranceMap.values());
+                Collections.shuffle(allList, rnd);
+                for (Utterance u : allList) {
+                    if (distractorPool.size() >= 3) break;
+                    if (u.getId().equals(correct.getId())) continue;
+                    if (u.getRoles() == null || u.getRoles().isEmpty()) continue;
+                    if (!u.getRoles().stream().anyMatch(r -> correctRoleId.equals(r.getId()))) continue;
+                    if (u.getRomaji() == null || u.getRomaji().isEmpty()) continue;
+                    if (seenRomaji.contains(u.getRomaji())) continue;
+                    if (u.getCommunicativeIntent() != null && correctIntentId.equals(u.getCommunicativeIntent().getId())) continue;
+                    seenRomaji.add(u.getRomaji());
+                    distractorPool.add(u);
+                }
+            }
+
+            if (distractorPool.size() < 3) continue;
+
+            List<ExerciseTypeDResponse.OptionDto> options = new ArrayList<>();
+            options.add(new ExerciseTypeDResponse.OptionDto(correct.getRomaji(), true));
+            for (int j = 0; j < 3; j++) {
+                options.add(new ExerciseTypeDResponse.OptionDto(distractorPool.get(j).getRomaji(), false));
+            }
+            Collections.shuffle(options, rnd);
+
+            result.add(new ExerciseTypeDResponse(situationYou, situationStep, situationIntent, options));
         }
         return result;
     }

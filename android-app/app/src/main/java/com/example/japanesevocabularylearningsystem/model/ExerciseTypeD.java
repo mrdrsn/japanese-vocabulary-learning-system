@@ -1,28 +1,32 @@
 package com.example.japanesevocabularylearningsystem.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ExerciseTypeD {
+public class ExerciseTypeD implements Serializable {
+    private String instruction;
+    private String situationYou;
+    private String situationStep;
+    private String situationIntent;
+    private List<String> options;
+    private List<Boolean> correctFlags;
 
-    private String promptUtteranceId;
-    private List<String> saidOptions;
-    private int correctSaidIndex;
-    private List<String> responseOptions;
-    private int correctResponseIndex;
+    public ExerciseTypeD() {}
 
-    public ExerciseTypeD(String promptUtteranceId,
-                         List<String> saidOptions, int correctSaidIndex,
-                         List<String> responseOptions, int correctResponseIndex) {
-        this.promptUtteranceId = promptUtteranceId;
-        this.saidOptions = saidOptions;
-        this.correctSaidIndex = correctSaidIndex;
-        this.responseOptions = responseOptions;
-        this.correctResponseIndex = correctResponseIndex;
+    public ExerciseTypeD(String instruction, String situationYou, String situationStep,
+                         String situationIntent, List<String> options, List<Boolean> correctFlags) {
+        this.instruction = instruction;
+        this.situationYou = situationYou;
+        this.situationStep = situationStep;
+        this.situationIntent = situationIntent;
+        this.options = options;
+        this.correctFlags = correctFlags;
     }
 
-    public String getPromptUtteranceId() { return promptUtteranceId; }
-    public List<String> getSaidOptions() { return saidOptions; }
-    public int getCorrectSaidIndex() { return correctSaidIndex; }
-    public List<String> getResponseOptions() { return responseOptions; }
-    public int getCorrectResponseIndex() { return correctResponseIndex; }
+    public String getInstruction()         { return instruction; }
+    public String getSituationYou()        { return situationYou; }
+    public String getSituationStep()       { return situationStep; }
+    public String getSituationIntent()     { return situationIntent; }
+    public List<String> getOptions()       { return options; }
+    public List<Boolean> getCorrectFlags() { return correctFlags; }
 }

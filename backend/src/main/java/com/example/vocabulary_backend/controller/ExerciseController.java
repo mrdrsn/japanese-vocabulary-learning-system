@@ -5,7 +5,7 @@ import com.example.vocabulary_backend.model.ExerciseTypeBResponse;
 import com.example.vocabulary_backend.service.ExerciseService;
 import org.springframework.web.bind.annotation.*;
 import com.example.vocabulary_backend.model.ExerciseTypeCResponse;
-
+import com.example.vocabulary_backend.model.ExerciseTypeDResponse;
 import java.util.List;
 
 @RestController
@@ -38,5 +38,11 @@ public class ExerciseController {
             @PathVariable String id,
             @RequestParam(defaultValue = "2") int count) {
         return exerciseService.generateTypeCExercises(id, count);
+    }
+    @GetMapping("/scenarios/{id}/exercises/type-d")
+    public List<ExerciseTypeDResponse> getTypeDExercises(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "2") int count) {
+        return exerciseService.generateTypeDExercises(id, count);
     }
 }

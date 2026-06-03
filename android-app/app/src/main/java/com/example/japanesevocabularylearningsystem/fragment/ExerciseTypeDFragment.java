@@ -22,25 +22,40 @@ import java.util.List;
 
 public class ExerciseTypeDFragment extends Fragment {
 
-    private static final int ACCENT_COLOR = 0xFF70C8B9;
+    private static final int COLOR_ACCENT  = 0xFF70C8B9;
+    private static final int COLOR_CORRECT = 0xFF4CAF50;
+    private static final int COLOR_WRONG   = 0xFFF44336;
+    private static final int COLOR_DEFAULT = 0xFFFFFFFF;
 
-    private static final String ARG_PROMPT_ID = "promptId";
-    private static final String ARG_SAID_OPTIONS = "saidOptions";
-    private static final String ARG_RESP_OPTIONS = "respOptions";
-    private static final String ARG_INDEX = "index";
-    private static final String ARG_TOTAL = "total";
+    private static final String ARG_INSTRUCTION    = "instruction";
+    private static final String ARG_SITUATION_YOU  = "situationYou";
+    private static final String ARG_SITUATION_STEP = "situationStep";
+    private static final String ARG_SITUATION_INT  = "situationIntent";
+    private static final String ARG_OPTIONS        = "options";
+    private static final String ARG_CORRECT_FLAGS  = "correctFlags";
+    private static final String ARG_INDEX          = "index";
+    private static final String ARG_TOTAL          = "total";
 
     private OnAnswerSubmittedListener listener;
-    private AppCompatButton btnSaid1, btnSaid2, btnResp1, btnResp2, btnSubmit;
-    private int selectedSaidIndex = -1;
-    private int selectedRespIndex = -1;
+    private AppCompatButton[] optionButtons;
+    private AppCompatButton btnSubmit;
+    private boolean submitted = false;
+    private int selectedIndex = -1;
 
     public static ExerciseTypeDFragment newInstance(ExerciseTypeD exercise, int index, int total) {
         ExerciseTypeDFragment fragment = new ExerciseTypeDFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PROMPT_ID, exercise.getPromptUtteranceId());
-        args.putStringArrayList(ARG_SAID_OPTIONS, new ArrayList<>(exercise.getSaidOptions()));
-        args.putStringArrayList(ARG_RESP_OPTIONS, new ArrayList<>(exercise.getResponseOptions()));
+        args.putString(ARG_INSTRUCTION, exercise.getInstruction());
+        args.putString(ARG_SITUATION_YOU, exercise.getSituationYou());
+        args.putString(ARG_SITUATION_STEP, exercise.getSituationStep());
+        args.putString(ARG_SITUATION_INT, exercise.getSituationIntent());
+        args.putStringArrayList(ARG_OPTIONS, new ArrayList<>(exercise.getOptions()));
+        List<Boolean> flags = exercise.getCorrectFlags();
+        boolean[] flagsArr = new boolean[flags != null ? flags.size() : 0];
+        if (flags != null) {
+            for (int i = 0; i < flags.size(); i++) flagsArr[i] = Boolean.TRUE.equals(flags.get(i));
+        }
+        args.putBooleanArray(ARG_CORRECT_FLAGS, flagsArr);
         args.putInt(ARG_INDEX, index);
         args.putInt(ARG_TOTAL, total);
         fragment.setArguments(args);
@@ -75,66 +90,79 @@ public class ExerciseTypeDFragment extends Fragment {
         progressBar.setProgress(index + 1);
 
         TextView tvInstruction = view.findViewById(R.id.tvInstruction);
-        tvInstruction.setText("Выберите подходящие ответы");
-        tvInstruction.setBackground(makePill(ACCENT_COLOR, 24));
+        tvInstruction.setText(args.getString(ARG_INSTRUCTION));
+        tvInstruction.setBackground(makePill(COLOR_ACCENT, 24));
 
-        view.findViewById(R.id.btnSpeaker).setOnClickListener(v -> {
-            // TODO: воспроизвести аудио для args.getString(ARG_PROMPT_ID)
-        });
+        view.<TextView>findViewById(R.id.tvSituationYou)
+                .setText("Вы: " + args.getString(ARG_SITUATION_YOU));
+        view.<TextView>findViewById(R.id.tvSituationStep)
+                .setText("Что происходит: " + args.getString(ARG_SITUATION_STEP));
+        view.<TextView>findViewById(R.id.tvSituationIntent)
+                .setText("Вы хотите: " + args.getString(ARG_SITUATION_INT));
 
-        List<String> saidOptions = args.getStringArrayList(ARG_SAID_OPTIONS);
-        List<String> respOptions = args.getStringArrayList(ARG_RESP_OPTIONS);
-
-        btnSaid1 = view.findViewById(R.id.btnSaid1);
-        btnSaid2 = view.findViewById(R.id.btnSaid2);
-        btnResp1 = view.findViewById(R.id.btnResp1);
-        btnResp2 = view.findViewById(R.id.btnResp2);
+        List<String> options = args.getStringArrayList(ARG_OPTIONS);
         btnSubmit = view.findViewById(R.id.btnSubmitAnswer);
+        optionButtons = new AppCompatButton[]{
+                view.findViewById(R.id.btnOption1),
+                view.findViewById(R.id.btnOption2),
+                view.findViewById(R.id.btnOption3),
+                view.findViewById(R.id.btnOption4)
+        };
 
-        if (saidOptions != null && saidOptions.size() >= 2) {
-            btnSaid1.setText(saidOptions.get(0));
-            btnSaid2.setText(saidOptions.get(1));
+        for (int i = 0; i < optionButtons.length; i++) {
+            if (options != null && i < options.size()) {
+                optionButtons[i].setText(options.get(i));
+                optionButtons[i].setVisibility(View.VISIBLE);
+                final int idx = i;
+                optionButtons[i].setOnClickListener(v -> selectOption(idx));
+            } else {
+                optionButtons[i].setVisibility(View.GONE);
+            }
         }
-        if (respOptions != null && respOptions.size() >= 2) {
-            btnResp1.setText(respOptions.get(0));
-            btnResp2.setText(respOptions.get(1));
-        }
 
-        btnSaid1.setOnClickListener(v -> selectSaid(0));
-        btnSaid2.setOnClickListener(v -> selectSaid(1));
-        btnResp1.setOnClickListener(v -> selectResp(0));
-        btnResp2.setOnClickListener(v -> selectResp(1));
-
-        btnSubmit.setOnClickListener(v -> { if (listener != null) listener.onAnswerSubmitted(); });
+        btnSubmit.setOnClickListener(v -> {
+            if (!submitted) {
+                submitted = true;
+                showFeedback(args.getBooleanArray(ARG_CORRECT_FLAGS));
+                btnSubmit.setText("Продолжить");
+            } else {
+                if (listener != null) listener.onAnswerSubmitted();
+            }
+        });
     }
 
-    private void selectSaid(int index) {
-        selectedSaidIndex = index;
-        if (index == 0) {
-            btnSaid1.setBackground(makePill(ACCENT_COLOR, 14)); btnSaid1.setTextColor(0xFFFFFFFF);
-            btnSaid2.setBackground(makePill(0xFFFFFFFF, 14));   btnSaid2.setTextColor(0xFF1A1A1A);
-        } else {
-            btnSaid2.setBackground(makePill(ACCENT_COLOR, 14)); btnSaid2.setTextColor(0xFFFFFFFF);
-            btnSaid1.setBackground(makePill(0xFFFFFFFF, 14));   btnSaid1.setTextColor(0xFF1A1A1A);
+    private void selectOption(int index) {
+        if (submitted) return;
+        selectedIndex = index;
+        for (int i = 0; i < optionButtons.length; i++) {
+            if (i == index) {
+                optionButtons[i].setBackground(makePill(COLOR_ACCENT, 14));
+                optionButtons[i].setTextColor(0xFFFFFFFF);
+            } else {
+                optionButtons[i].setBackground(makePill(COLOR_DEFAULT, 14));
+                optionButtons[i].setTextColor(0xFF1A1A1A);
+            }
         }
-        updateSubmitVisibility();
+        btnSubmit.setVisibility(View.VISIBLE);
     }
 
-    private void selectResp(int index) {
-        selectedRespIndex = index;
-        if (index == 0) {
-            btnResp1.setBackground(makePill(ACCENT_COLOR, 14)); btnResp1.setTextColor(0xFFFFFFFF);
-            btnResp2.setBackground(makePill(0xFFFFFFFF, 14));   btnResp2.setTextColor(0xFF1A1A1A);
-        } else {
-            btnResp2.setBackground(makePill(ACCENT_COLOR, 14)); btnResp2.setTextColor(0xFFFFFFFF);
-            btnResp1.setBackground(makePill(0xFFFFFFFF, 14));   btnResp1.setTextColor(0xFF1A1A1A);
-        }
-        updateSubmitVisibility();
-    }
-
-    private void updateSubmitVisibility() {
-        if (selectedSaidIndex >= 0 && selectedRespIndex >= 0) {
-            btnSubmit.setVisibility(View.VISIBLE);
+    private void showFeedback(boolean[] correctFlags) {
+        if (correctFlags == null) return;
+        for (int i = 0; i < optionButtons.length; i++) {
+            if (optionButtons[i].getVisibility() != View.VISIBLE) continue;
+            boolean isCorrect = i < correctFlags.length && correctFlags[i];
+            boolean isSelected = (i == selectedIndex);
+            if (isCorrect) {
+                optionButtons[i].setBackground(makePill(COLOR_CORRECT, 14));
+                optionButtons[i].setTextColor(0xFFFFFFFF);
+            } else if (isSelected) {
+                optionButtons[i].setBackground(makePill(COLOR_WRONG, 14));
+                optionButtons[i].setTextColor(0xFFFFFFFF);
+            } else {
+                optionButtons[i].setBackground(makePill(COLOR_DEFAULT, 14));
+                optionButtons[i].setTextColor(0xFF1A1A1A);
+            }
+            optionButtons[i].setClickable(false);
         }
     }
 

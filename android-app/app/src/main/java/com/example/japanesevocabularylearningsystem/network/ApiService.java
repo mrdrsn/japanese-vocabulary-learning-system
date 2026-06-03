@@ -2,6 +2,7 @@ package com.example.japanesevocabularylearningsystem.network;
 
 import com.example.japanesevocabularylearningsystem.network.dto.ExerciseTypeADto;
 import com.example.japanesevocabularylearningsystem.network.dto.ExerciseTypeBDto;
+import com.example.japanesevocabularylearningsystem.network.dto.ExerciseTypeDDto;
 import com.example.japanesevocabularylearningsystem.network.dto.FullLexiconDto;
 import com.example.japanesevocabularylearningsystem.network.dto.ScenarioDto;
 import com.example.japanesevocabularylearningsystem.network.dto.UtteranceDto;
@@ -39,6 +40,10 @@ public interface ApiService {
 
     @GET("api/scenarios/{id}/exercises/type-c")
     Call<List<ExerciseTypeCDto>> getTypeCExercises(
+            @Path("id") String scenarioId,
+            @Query("count") int count);
+    @GET("api/scenarios/{id}/exercises/type-d")
+    Call<List<ExerciseTypeDDto>> getTypeDExercises(
             @Path("id") String scenarioId,
             @Query("count") int count);
 }
