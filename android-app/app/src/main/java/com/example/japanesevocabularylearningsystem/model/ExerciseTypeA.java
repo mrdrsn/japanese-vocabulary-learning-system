@@ -1,32 +1,33 @@
 package com.example.japanesevocabularylearningsystem.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ExerciseTypeA {
+public class ExerciseTypeA implements Serializable {
 
     private String instruction;
     private String translation;
     private String romajiWithGap;
-    private String roleId;
+    private String roleName;
     private List<String> options;
-    private int correctOptionIndex;
+    private List<Boolean> correctFlags;
 
     public ExerciseTypeA() {}
 
     public ExerciseTypeA(String instruction, String translation, String romajiWithGap,
-                         String roleId, List<String> options, int correctOptionIndex) {
+                         String roleName, List<String> options, List<Boolean> correctFlags) {
         this.instruction = instruction;
         this.translation = translation;
         this.romajiWithGap = romajiWithGap;
-        this.roleId = roleId;
+        this.roleName = roleName;
         this.options = options;
-        this.correctOptionIndex = correctOptionIndex;
+        this.correctFlags = correctFlags;
     }
 
-    public String getInstruction() { return instruction; }
-    public String getTranslation() { return translation; }
-    public String getRomajiWithGap() { return romajiWithGap; }
-    public String getRoleId() { return roleId; }
-    public List<String> getOptions() { return options; }
-    public int getCorrectOptionIndex() { return correctOptionIndex; }
+    public String getInstruction()       { return instruction; }
+    public String getTranslation()       { return translation; }
+    public String getRomajiWithGap()     { return romajiWithGap; }
+    public String getRoleName()          { return roleName; }
+    public List<String> getOptions()     { return options; }
+    public List<Boolean> getCorrectFlags() { return correctFlags; }
 }

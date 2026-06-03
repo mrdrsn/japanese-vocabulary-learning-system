@@ -20,6 +20,7 @@ import com.example.japanesevocabularylearningsystem.network.dto.LexicalItemDto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,13 +34,31 @@ public class LexicalViewActivity extends AppCompatActivity {
 
     private UtteranceAdapter adapter;
     private final List<Utterance> utteranceList = new ArrayList<>();
+    private final List<String> availableStepNames = new ArrayList<>();
     private ProgressBar progressBar;
+
+    private String scenarioId;
+    private String scenarioName;
+
+    // Сохраняем между пересозданиями activity
     private static List<String> currentSelectedStepIds = null;
+    private static String lastScenarioId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lexical_view);
+
+        scenarioId   = getIntent().getStringExtra(MainActivity.EXTRA_SCENARIO_ID);
+        scenarioName = getIntent().getStringExtra(MainActivity.EXTRA_SCENARIO_NAME);
+        if (scenarioId == null)   scenarioId   = "SC1";
+        if (scenarioName == null) scenarioName = "Convenience Store";
+
+        // Сменился сценарий → сбрасываем выбор шагов
+        if (!scenarioId.equals(lastScenarioId)) {
+            currentSelectedStepIds = null;
+            lastScenarioId = scenarioId;
+        }
 
         ImageView btnBack      = findViewById(R.id.btnBack);
         ImageView btnSettings  = findViewById(R.id.btnSettings);
@@ -52,22 +71,26 @@ public class LexicalViewActivity extends AppCompatActivity {
         rvUtterances.setAdapter(adapter);
 
         btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(this, ModeChooseActivity.class));
+            Intent intent = new Intent(this, ModeChooseActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_ID, scenarioId);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_NAME, scenarioName);
+            startActivity(intent);
             finish();
         });
 
         btnSettings.setOnClickListener(v -> {
+            if (availableStepNames.isEmpty()) return;
             ArrayList<ScenarioStep> steps = new ArrayList<>();
-            for (ScenarioStep step : MockDataProvider.getConvenienceStoreSteps()) {
+            for (String name : availableStepNames) {
                 boolean selected = currentSelectedStepIds == null
-                        || currentSelectedStepIds.contains(step.getId());
-                steps.add(new ScenarioStep(step.getId(), step.getName(), selected));
+                        || currentSelectedStepIds.contains(name);
+                steps.add(new ScenarioStep(name, name, selected));
             }
             ScenarioStepsBottomSheet sheet =
-                    ScenarioStepsBottomSheet.newInstance("Convenience Store", steps);
-            sheet.setOnStepsAppliedListener(selectedStepIds -> {
-                currentSelectedStepIds = new ArrayList<>(selectedStepIds);
-                adapter.updateData(filterBySteps(selectedStepIds));
+                    ScenarioStepsBottomSheet.newInstance(scenarioName, steps);
+            sheet.setOnStepsAppliedListener(selectedNames -> {
+                currentSelectedStepIds = new ArrayList<>(selectedNames);
+                adapter.updateData(filterBySteps(selectedNames));
                 CardLearnActivity.clearSavedState();
             });
             sheet.show(getSupportFragmentManager(), "steps_sheet");
@@ -77,12 +100,11 @@ public class LexicalViewActivity extends AppCompatActivity {
             List<Utterance> cardsToStudy = currentSelectedStepIds == null
                     ? getStudyableItems()
                     : filterBySteps(currentSelectedStepIds);
-
-            CardLearnActivity.pendingUtterances = cardsToStudy;  // ← передаём актуальные данные
-
+            CardLearnActivity.pendingUtterances = cardsToStudy;
             Intent intent = new Intent(this, CardLearnActivity.class);
             if (currentSelectedStepIds != null) {
-                intent.putStringArrayListExtra("stepIds", new ArrayList<>(currentSelectedStepIds));
+                intent.putStringArrayListExtra("stepIds",
+                        new ArrayList<>(currentSelectedStepIds));
             }
             startActivity(intent);
         });
@@ -93,10 +115,11 @@ public class LexicalViewActivity extends AppCompatActivity {
     private void loadLexicon() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
-        ApiClient.getInstance().getFullLexicon("SC1")
+        ApiClient.getInstance().getFullLexicon(scenarioId)
                 .enqueue(new Callback<FullLexiconDto>() {
                     @Override
-                    public void onResponse(Call<FullLexiconDto> call, Response<FullLexiconDto> response) {
+                    public void onResponse(Call<FullLexiconDto> call,
+                                           Response<FullLexiconDto> response) {
                         if (progressBar != null) progressBar.setVisibility(View.GONE);
                         if (response.isSuccessful() && response.body() != null
                                 && response.body().items != null) {
@@ -106,6 +129,7 @@ public class LexicalViewActivity extends AppCompatActivity {
                                 utteranceList.add(toModel(dto));
                             }
                             allUtterances.addAll(utteranceList);
+                            buildAvailableSteps();
                             if (currentSelectedStepIds != null) {
                                 adapter.updateData(filterBySteps(currentSelectedStepIds));
                             } else {
@@ -122,6 +146,16 @@ public class LexicalViewActivity extends AppCompatActivity {
                         fallbackToMock();
                     }
                 });
+    }
+
+    // Собираем уникальные шаги из реальных данных в порядке появления
+    private void buildAvailableSteps() {
+        availableStepNames.clear();
+        Set<String> seen = new LinkedHashSet<>();
+        for (Utterance u : allUtterances) {
+            if (u.getStepDisplayNames() != null) seen.addAll(u.getStepDisplayNames());
+        }
+        availableStepNames.addAll(seen);
     }
 
     private Utterance toModel(LexicalItemDto dto) {
@@ -149,10 +183,13 @@ public class LexicalViewActivity extends AppCompatActivity {
     }
 
     private void fallbackToMock() {
-        utteranceList.clear();
-        utteranceList.addAll(MockDataProvider.getConvenienceStoreUtterances());
-        allUtterances.clear();
-        allUtterances.addAll(utteranceList);
+        if ("SC1".equals(scenarioId)) {
+            utteranceList.clear();
+            utteranceList.addAll(MockDataProvider.getConvenienceStoreUtterances());
+            allUtterances.clear();
+            allUtterances.addAll(utteranceList);
+            buildAvailableSteps();
+        }
         if (currentSelectedStepIds != null) {
             adapter.updateData(filterBySteps(currentSelectedStepIds));
         } else {
@@ -160,7 +197,6 @@ public class LexicalViewActivity extends AppCompatActivity {
         }
     }
 
-    // Только UTTERANCE и TEMPLATE для карточного режима
     private List<Utterance> getStudyableItems() {
         List<Utterance> result = new ArrayList<>();
         for (Utterance u : allUtterances) {
@@ -169,16 +205,11 @@ public class LexicalViewActivity extends AppCompatActivity {
         return result;
     }
 
-    private List<Utterance> filterBySteps(List<String> selectedStepIds) {
-        Set<String> selectedNames = new HashSet<>();
-        for (ScenarioStep step : MockDataProvider.getConvenienceStoreSteps()) {
-            if (selectedStepIds.contains(step.getId())) {
-                selectedNames.add(step.getName());
-            }
-        }
-
+    // selectedStepDisplayNames — список отображаемых названий шагов (не ID)
+    private List<Utterance> filterBySteps(List<String> selectedStepDisplayNames) {
+        Set<String> selectedNames = new HashSet<>(selectedStepDisplayNames);
         List<Utterance> result = new ArrayList<>();
-        for (Utterance u : allUtterances) {          // ← было utteranceList
+        for (Utterance u : allUtterances) {
             if ("LEXICAL_UNIT".equals(u.getType())) continue;
             if (u.getStepDisplayNames() != null) {
                 for (String name : u.getStepDisplayNames()) {

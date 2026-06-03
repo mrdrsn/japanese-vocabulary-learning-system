@@ -15,6 +15,12 @@
         android:theme="@style/Theme.JapaneseVocabularyLearningSystem"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".TrainingResultsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TrainingMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".ExamplesBottomSheet"
             android:exported="false" />
         <activity

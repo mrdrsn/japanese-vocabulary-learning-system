@@ -127,19 +127,19 @@ public class MockDataProvider {
     public static List<ExerciseTypeA> getTypeAExercises() {
         List<ExerciseTypeA> list = new ArrayList<>();
         list.add(new ExerciseTypeA(
-                "Закончите фразу продавца...",
+                "Закончите фразу Кассира...",
                 "Вам разогреть это?",
-                "Kochira ________masuka?",
-                "R2",
+                "Kochira _____ masuka?",
+                "Кассир",
                 Arrays.asList("goiriyō", "atatame", "okute", "ijō"),
-                1));
+                Arrays.asList(false, true, false, false)));
         list.add(new ExerciseTypeA(
-                "Закончите фразу продавца...",
+                "Закончите фразу Кассира...",
                 "Вам нужен пакет?",
-                "Rejibukuro wa ________ desu ka?",
-                "R2",
+                "Rejibukuro wa _____ desu ka?",
+                "Кассир",
                 Arrays.asList("goiriyō", "atatame", "okute", "masuka"),
-                0));
+                Arrays.asList(true, false, false, false)));
         return list;
     }
 

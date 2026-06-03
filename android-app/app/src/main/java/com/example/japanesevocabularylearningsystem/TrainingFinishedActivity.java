@@ -4,11 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class TrainingFinishedActivity extends AppCompatActivity {
     @Override
@@ -18,7 +14,11 @@ public class TrainingFinishedActivity extends AppCompatActivity {
 
         Button btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(TrainingFinishedActivity.this, ModeChooseActivity.class);
+            Intent intent = new Intent(TrainingFinishedActivity.this, TrainingMenuActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_ID,
+                    getIntent().getStringExtra(MainActivity.EXTRA_SCENARIO_ID));
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_NAME,
+                    getIntent().getStringExtra(MainActivity.EXTRA_SCENARIO_NAME));
             startActivity(intent);
             finish();
         });
