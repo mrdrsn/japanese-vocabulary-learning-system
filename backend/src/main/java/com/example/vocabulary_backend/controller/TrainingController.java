@@ -21,7 +21,7 @@ public class TrainingController {
     }
 
     @GetMapping("/training-sessions/recent")
-    public List<TrainingSessionResponse> getRecentSessions() {
-        return service.getRecentSessions();
+    public List<TrainingSessionResponse> getRecentSessions(@RequestParam String scenarioId) {
+        return service.getRecentSessions(scenarioId);
     }
 }

@@ -7,6 +7,10 @@ import com.example.japanesevocabularylearningsystem.network.dto.FullLexiconDto;
 import com.example.japanesevocabularylearningsystem.network.dto.ScenarioDto;
 import com.example.japanesevocabularylearningsystem.network.dto.UtteranceDto;
 import com.example.japanesevocabularylearningsystem.network.dto.ExerciseTypeCDto;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
+import com.example.japanesevocabularylearningsystem.network.dto.TrainingSessionDto;
+import com.example.japanesevocabularylearningsystem.network.dto.TrainingSessionSaveDto;
 
 import java.util.List;
 
@@ -46,4 +50,10 @@ public interface ApiService {
     Call<List<ExerciseTypeDDto>> getTypeDExercises(
             @Path("id") String scenarioId,
             @Query("count") int count);
+
+    @POST("api/training-sessions")
+    Call<TrainingSessionDto> saveTrainingSession(@Body TrainingSessionSaveDto body);
+
+    @GET("api/training-sessions/recent")
+    Call<List<TrainingSessionDto>> getRecentSessions(@Query("scenarioId") String scenarioId);
 }

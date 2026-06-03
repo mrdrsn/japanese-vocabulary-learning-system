@@ -22,8 +22,9 @@ public class TrainingSessionService {
     private TrainingSessionRepository repository;
 
     public TrainingSessionResponse saveSession(TrainingSessionRequest request) {
-        // Сначала получаем предыдущую сессию, потом сохраняем новую
-        Optional<TrainingSession> previous = repository.findTopByOrderByFinishedAtDesc();
+        // Предыдущая сессия ТОГо же сценария для корректного сравнения
+        Optional<TrainingSession> previous = repository
+                .findTopByScenarioIdOrderByFinishedAtDesc(request.getScenarioId());
 
         TrainingSession session = new TrainingSession();
         session.setScenarioId(request.getScenarioId());
@@ -37,8 +38,8 @@ public class TrainingSessionService {
         return response;
     }
 
-    public List<TrainingSessionResponse> getRecentSessions() {
-        return repository.findTop10ByOrderByFinishedAtDesc().stream()
+    public List<TrainingSessionResponse> getRecentSessions(String scenarioId) {
+        return repository.findTop10ByScenarioIdOrderByFinishedAtDesc(scenarioId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

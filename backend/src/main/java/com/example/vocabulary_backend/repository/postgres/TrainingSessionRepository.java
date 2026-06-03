@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface TrainingSessionRepository extends JpaRepository<TrainingSession, Long> {
     List<TrainingSession> findTop10ByOrderByFinishedAtDesc();
     Optional<TrainingSession> findTopByOrderByFinishedAtDesc();
+
+    List<TrainingSession> findTop10ByScenarioIdOrderByFinishedAtDesc(String scenarioId);
+    Optional<TrainingSession> findTopByScenarioIdOrderByFinishedAtDesc(String scenarioId);
 }

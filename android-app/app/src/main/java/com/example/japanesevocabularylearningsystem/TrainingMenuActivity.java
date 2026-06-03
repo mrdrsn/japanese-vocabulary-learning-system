@@ -31,7 +31,11 @@ public class TrainingMenuActivity extends AppCompatActivity {
             // НЕ вызываем finish() — остаётся в back stack
         });
 
-        findViewById(R.id.btnViewResults).setOnClickListener(v ->
-                startActivity(new Intent(this, TrainingResultsActivity.class)));
+        findViewById(R.id.btnViewResults).setOnClickListener(v -> {
+            Intent intent = new Intent(this, TrainingResultsActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_ID, scenarioId);
+            intent.putExtra(MainActivity.EXTRA_SCENARIO_NAME, scenarioName);
+            startActivity(intent);
+        });
     }
 }
