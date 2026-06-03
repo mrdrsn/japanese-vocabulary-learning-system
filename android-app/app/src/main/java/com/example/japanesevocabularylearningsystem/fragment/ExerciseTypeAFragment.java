@@ -39,6 +39,7 @@ public class ExerciseTypeAFragment extends Fragment {
     private AppCompatButton btnSubmit;
 
     private boolean submitted = false;
+    private boolean lastAnswerCorrect = false;
     private final java.util.Set<Integer> selectedIndices = new java.util.HashSet<>();
 
     public static ExerciseTypeAFragment newInstance(ExerciseTypeA exercise, int index, int total) {
@@ -127,7 +128,7 @@ public class ExerciseTypeAFragment extends Fragment {
                 showFeedback(args.getBooleanArray(ARG_CORRECT_FLAGS));
                 btnSubmit.setText("Продолжить");
             } else {
-                if (listener != null) listener.onAnswerSubmitted();
+                if (listener != null) listener.onAnswerSubmitted(lastAnswerCorrect);
             }
         });
     }
@@ -166,6 +167,13 @@ public class ExerciseTypeAFragment extends Fragment {
             }
             optionButtons[i].setClickable(false);
         }
+        int numCorrect = 0;
+        for (boolean f : correctFlags) if (f) numCorrect++;
+        boolean allSelectedCorrect = true;
+        for (int idx : selectedIndices) {
+            if (idx >= correctFlags.length || !correctFlags[idx]) { allSelectedCorrect = false; break; }
+        }
+        lastAnswerCorrect = allSelectedCorrect && (selectedIndices.size() == numCorrect);
     }
 
     private GradientDrawable makePill(int color, int radiusDp) {

@@ -46,6 +46,7 @@ public class ExerciseTypeCFragment extends Fragment {
     private View circleR1, circleR2;
     private TextView tvRoleR1, tvRoleR2;
     private boolean submitted = false;
+    private boolean lastAnswerCorrect = false;
     private int selectedRoleIndex = -1;
     private int selectedTranslationIndex = -1;
 
@@ -157,7 +158,7 @@ public class ExerciseTypeCFragment extends Fragment {
                         args.getBooleanArray(ARG_TRANS_FLAGS));
                 btnSubmit.setText("Продолжить");
             } else {
-                if (listener != null) listener.onAnswerSubmitted();
+                if (listener != null) listener.onAnswerSubmitted(lastAnswerCorrect);
             }
         });
     }
@@ -232,6 +233,12 @@ public class ExerciseTypeCFragment extends Fragment {
                 optionButtons[i].setClickable(false);
             }
         }
+        // Добавить в конец метода:
+        boolean roleOk = roleFlags != null && selectedRoleIndex >= 0
+                && selectedRoleIndex < roleFlags.length && roleFlags[selectedRoleIndex];
+        boolean transOk = transFlags != null && selectedTranslationIndex >= 0
+                && selectedTranslationIndex < transFlags.length && transFlags[selectedTranslationIndex];
+        lastAnswerCorrect = roleOk && transOk;
     }
 
     private void applyRoleFeedback(LinearLayout btn, View circle, TextView tv,

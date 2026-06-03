@@ -41,6 +41,7 @@ public class ExerciseTypeBFragment extends Fragment {
     private AppCompatButton[] optionButtons;
     private AppCompatButton btnSubmit;
     private boolean submitted = false;
+    private boolean lastAnswerCorrect = false;
     private int selectedIndex = -1;
 
     public static ExerciseTypeBFragment newInstance(ExerciseTypeB exercise, int index, int total) {
@@ -127,7 +128,7 @@ public class ExerciseTypeBFragment extends Fragment {
                 showFeedback(args.getBooleanArray(ARG_CORRECT_FLAGS));
                 btnSubmit.setText("Продолжить");
             } else {
-                if (listener != null) listener.onAnswerSubmitted();
+                if (listener != null) listener.onAnswerSubmitted(lastAnswerCorrect);
             }
         });
     }
@@ -166,6 +167,10 @@ public class ExerciseTypeBFragment extends Fragment {
             }
             optionButtons[i].setClickable(false);
         }
+        // Добавить в конец метода:
+        lastAnswerCorrect = selectedIndex >= 0
+                && selectedIndex < correctFlags.length
+                && correctFlags[selectedIndex];
     }
 
     private GradientDrawable makePill(int color, int radiusDp) {
