@@ -147,14 +147,14 @@ public class MockDataProvider {
         return new ArrayList<>(); // больше не используется, тип изменён
     }
 
-    public static List<ExerciseTypeC> getTypeCExercises() {
-        List<ExerciseTypeC> list = new ArrayList<>();
-        list.add(new ExerciseTypeC("U5", "R1",
-                Arrays.asList("Дайте, пожалуйста, палочки для еды.","Вам нужен пакет?","Нет, спасибо.","Спасибо большое."), 0));
-        list.add(new ExerciseTypeC("U6", "R2",
-                Arrays.asList("Да, пожалуйста.","Вам разогреть это?","Нет, спасибо.","Где касса?"), 1));
-        return list;
-    }
+//    public static List<ExerciseTypeC> getTypeCExercises() {
+//        List<ExerciseTypeC> list = new ArrayList<>();
+//        list.add(new ExerciseTypeC("U5", "R1",
+//                Arrays.asList("Дайте, пожалуйста, палочки для еды.","Вам нужен пакет?","Нет, спасибо.","Спасибо большое."), 0));
+//        list.add(new ExerciseTypeC("U6", "R2",
+//                Arrays.asList("Да, пожалуйста.","Вам разогреть это?","Нет, спасибо.","Где касса?"), 1));
+//        return list;
+//    }
 
     public static List<ExerciseTypeD> getTypeDExercises() {
         List<ExerciseTypeD> list = new ArrayList<>();
@@ -171,7 +171,7 @@ public class MockDataProvider {
         List<TrainingExercise> list = new ArrayList<>();
         for (ExerciseTypeA e : getTypeAExercises()) list.add(TrainingExercise.ofA(e));
         for (ExerciseTypeB e : getTypeBExercises()) list.add(TrainingExercise.ofB(e));
-        for (ExerciseTypeC e : getTypeCExercises()) list.add(TrainingExercise.ofC(e));
+//        for (ExerciseTypeC e : getTypeCExercises()) list.add(TrainingExercise.ofC(e));
         for (ExerciseTypeD e : getTypeDExercises()) list.add(TrainingExercise.ofD(e));
         return list;
     }

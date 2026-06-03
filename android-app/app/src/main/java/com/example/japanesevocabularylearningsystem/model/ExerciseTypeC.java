@@ -1,24 +1,33 @@
 package com.example.japanesevocabularylearningsystem.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ExerciseTypeC {
-
-    private String utteranceId;
-    private String correctRoleId;
+public class ExerciseTypeC implements Serializable {
+    private String instruction;
+    private String audioUrl;
+    private List<String> roleOptions;
+    private List<Boolean> roleCorrectFlags;
     private List<String> translationOptions;
-    private int correctTranslationIndex;
+    private List<Boolean> translationCorrectFlags;
 
-    public ExerciseTypeC(String utteranceId, String correctRoleId,
-                         List<String> translationOptions, int correctTranslationIndex) {
-        this.utteranceId = utteranceId;
-        this.correctRoleId = correctRoleId;
+    public ExerciseTypeC() {}
+
+    public ExerciseTypeC(String instruction, String audioUrl,
+                         List<String> roleOptions, List<Boolean> roleCorrectFlags,
+                         List<String> translationOptions, List<Boolean> translationCorrectFlags) {
+        this.instruction = instruction;
+        this.audioUrl = audioUrl;
+        this.roleOptions = roleOptions;
+        this.roleCorrectFlags = roleCorrectFlags;
         this.translationOptions = translationOptions;
-        this.correctTranslationIndex = correctTranslationIndex;
+        this.translationCorrectFlags = translationCorrectFlags;
     }
 
-    public String getUtteranceId() { return utteranceId; }
-    public String getCorrectRoleId() { return correctRoleId; }
-    public List<String> getTranslationOptions() { return translationOptions; }
-    public int getCorrectTranslationIndex() { return correctTranslationIndex; }
+    public String getInstruction()                    { return instruction; }
+    public String getAudioUrl()                       { return audioUrl; }
+    public List<String> getRoleOptions()              { return roleOptions; }
+    public List<Boolean> getRoleCorrectFlags()        { return roleCorrectFlags; }
+    public List<String> getTranslationOptions()       { return translationOptions; }
+    public List<Boolean> getTranslationCorrectFlags() { return translationCorrectFlags; }
 }

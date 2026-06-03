@@ -1,6 +1,7 @@
 package com.example.vocabulary_backend.service;
 
 import com.example.vocabulary_backend.model.ExerciseTypeAResponse;
+import com.example.vocabulary_backend.model.ExerciseTypeCResponse;
 import com.example.vocabulary_backend.model.neo4j.*;
 import com.example.vocabulary_backend.repository.ScenarioRepository;
 import org.springframework.stereotype.Service;
@@ -245,6 +246,106 @@ public class ExerciseService {
 
             result.add(new ExerciseTypeBResponse(chosen.getId(), audioUrl,
                     correctTranslation, roleName, options));
+        }
+        return result;
+    }
+    public List<ExerciseTypeCResponse> generateTypeCExercises(String scenarioId, int count) {
+        Scenario scenario = scenarioRepository.findById(scenarioId).orElseThrow();
+
+        List<Role> allRoles = scenario.getRoles() != null ? scenario.getRoles() : Collections.emptyList();
+
+        Map<String, Utterance> allUtteranceMap = new LinkedHashMap<>();
+        for (SituationStep step : scenario.getSteps()) {
+            if (step.getUtterances() != null) {
+                for (Utterance u : step.getUtterances()) {
+                    allUtteranceMap.put(u.getId(), u);
+                }
+            }
+        }
+
+        List<Utterance> candidates = new ArrayList<>();
+        for (Utterance u : allUtteranceMap.values()) {
+            List<Role> roles = u.getRoles();
+            if (roles == null || roles.size() != 1) continue;
+            if (!hasAudio(u.getId())) continue;
+            candidates.add(u);
+        }
+        if (candidates.isEmpty()) return Collections.emptyList();
+
+        Collections.shuffle(candidates);
+        Random rnd = new Random();
+        List<ExerciseTypeCResponse> result = new ArrayList<>();
+        Set<String> usedIds = new HashSet<>();
+
+        for (Utterance chosen : candidates) {
+            if (result.size() >= count) break;
+            if (usedIds.contains(chosen.getId())) continue;
+            usedIds.add(chosen.getId());
+
+            String correctTranslation = chosen.getRuTranslation() != null ? chosen.getRuTranslation() : "";
+            String correctRoleId = chosen.getRoles().get(0).getId();
+
+            List<ExerciseTypeCResponse.RoleOptionDto> roleOptions = new ArrayList<>();
+            for (Role r : allRoles) {
+                roleOptions.add(new ExerciseTypeCResponse.RoleOptionDto(
+                        r.getDisplayName() != null ? r.getDisplayName() : "",
+                        correctRoleId.equals(r.getId())));
+            }
+            Collections.shuffle(roleOptions, rnd);
+
+            List<Utterance> sameRolePool = new ArrayList<>();
+            Set<String> seenTranslations = new HashSet<>();
+            seenTranslations.add(correctTranslation);
+            for (Utterance u : allUtteranceMap.values()) {
+                if (u.getId().equals(chosen.getId())) continue;
+                List<Role> uRoles = u.getRoles();
+                if (uRoles == null) continue;
+                boolean hasSameRole = uRoles.stream().anyMatch(r -> correctRoleId.equals(r.getId()));
+                if (!hasSameRole) continue;
+                String t = u.getRuTranslation() != null ? u.getRuTranslation() : "";
+                if (seenTranslations.add(t)) sameRolePool.add(u);
+            }
+            Collections.shuffle(sameRolePool, rnd);
+
+            List<String> distractors = new ArrayList<>();
+            Set<String> usedTranslations = new HashSet<>();
+            usedTranslations.add(correctTranslation);
+
+            if (sameRolePool.size() >= 3) {
+                for (int j = 0; j < 3; j++) {
+                    String t = sameRolePool.get(j).getRuTranslation() != null
+                            ? sameRolePool.get(j).getRuTranslation() : "";
+                    distractors.add(t);
+                    usedTranslations.add(t);
+                }
+            } else {
+                for (Utterance u : sameRolePool) {
+                    String t = u.getRuTranslation() != null ? u.getRuTranslation() : "";
+                    distractors.add(t);
+                    usedTranslations.add(t);
+                }
+                List<Utterance> allList = new ArrayList<>(allUtteranceMap.values());
+                Collections.shuffle(allList, rnd);
+                for (Utterance u : allList) {
+                    if (distractors.size() >= 3) break;
+                    if (u.getId().equals(chosen.getId())) continue;
+                    String t = u.getRuTranslation() != null ? u.getRuTranslation() : "";
+                    if (usedTranslations.add(t)) distractors.add(t);
+                }
+            }
+
+            List<ExerciseTypeCResponse.TranslationOptionDto> translationOptions = new ArrayList<>();
+            translationOptions.add(new ExerciseTypeCResponse.TranslationOptionDto(correctTranslation, true));
+            for (String dt : distractors) {
+                translationOptions.add(new ExerciseTypeCResponse.TranslationOptionDto(dt, false));
+            }
+            Collections.shuffle(translationOptions, rnd);
+
+            result.add(new ExerciseTypeCResponse(
+                    chosen.getId(),
+                    "/audio/utterances/" + chosen.getId() + ".mp3",
+                    roleOptions,
+                    translationOptions));
         }
         return result;
     }
